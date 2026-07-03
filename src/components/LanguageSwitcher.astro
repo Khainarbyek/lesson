@@ -11,11 +11,12 @@ type Props = {
 const { currentLocale, currentPath = "/", copy } = Astro.props;
 const stripLocale = currentPath.replace(/^\/(en|ru|kk)/, "") || "/";
 const languageCodes: LocaleCode[] = ["en", "ru", "kk"];
+const brandMark = copy.productName.slice(0, 1);
 ---
 
 <header class="site-header container-shell" aria-label="Primary navigation">
   <a class="brand" href={localizedPath(currentLocale, "/")} aria-label={copy.productName}>
-    <span class="brand-mark" aria-hidden="true">B</span>
+    <span class="brand-mark" aria-hidden="true">{brandMark}</span>
     <span>{copy.productName}</span>
   </a>
 
@@ -88,4 +89,3 @@ const languageCodes: LocaleCode[] = ["en", "ru", "kk"];
     color: #fff;
   }
 </style>
-
