@@ -27,9 +27,19 @@ BrightLearn is a free children learning website MVP for English, Russian, and Ka
 Use Node `>=22.12.0`.
 
 ```bash
+nvm install
+nvm use
 npm install
 npm run dev
 ```
+
+If your terminal still shows an Astro Node version error, check the active version:
+
+```bash
+node -v
+```
+
+It should be `v22.12.0` or newer. This project includes `.nvmrc`, so `nvm use` should switch to a supported Node 22 version.
 
 Useful checks:
 
@@ -72,4 +82,3 @@ Netlify handles production deploys from GitHub. If you later want GitHub Actions
 
 - `NETLIFY_AUTH_TOKEN`
 - `NETLIFY_SITE_ID`
-
