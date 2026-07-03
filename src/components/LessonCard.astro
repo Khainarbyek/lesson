@@ -1,0 +1,155 @@
+---
+import type { HomeCopy, Lesson } from "../lib/content";
+
+type Props = {
+  lesson: Lesson;
+  copy: HomeCopy;
+};
+
+const { lesson, copy } = Astro.props;
+const isPlayable = lesson.status === "playable";
+const accentClass = `accent-${lesson.accent}`;
+---
+
+<article class:list={["lesson-card", "play-card", accentClass]} id={`age-${lesson.ageRange}`}>
+  <div class="lesson-visual" aria-hidden="true">
+    <span>{lesson.icon}</span>
+  </div>
+  <div class="lesson-body">
+    <div class="lesson-meta">
+      <span>{lesson.subject}</span>
+      <span>{lesson.ageRange}</span>
+    </div>
+    <h3>{lesson.title}</h3>
+    <p>{lesson.description}</p>
+  </div>
+  <div class="lesson-footer">
+    <span class:list={["status-pill", { playable: isPlayable }]}>
+      {isPlayable ? copy.playableLabel : copy.soonLabel}
+    </span>
+    <a class="lesson-link touch-target" href={lesson.route}>
+      {isPlayable ? copy.startLesson : copy.exploreSoon}
+    </a>
+  </div>
+</article>
+
+<style>
+  .lesson-card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 18px;
+    min-height: 290px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .lesson-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-soft), transparent 55%);
+    pointer-events: none;
+  }
+
+  .lesson-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .accent-berry {
+    --accent: var(--color-berry);
+    --accent-soft: rgba(217, 72, 125, 0.16);
+  }
+
+  .accent-sky {
+    --accent: var(--color-sky);
+    --accent-soft: rgba(76, 154, 255, 0.16);
+  }
+
+  .accent-leaf {
+    --accent: var(--color-leaf);
+    --accent-soft: rgba(49, 166, 106, 0.16);
+  }
+
+  .accent-sun {
+    --accent: var(--color-sun);
+    --accent-soft: rgba(255, 200, 87, 0.24);
+  }
+
+  .lesson-visual,
+  .lesson-body,
+  .lesson-footer {
+    position: relative;
+  }
+
+  .lesson-visual {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    place-items: center;
+    border-radius: 22px;
+    background: #fff;
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 1000;
+    box-shadow: inset 0 0 0 2px rgba(23, 32, 51, 0.08);
+  }
+
+  .lesson-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .lesson-meta span,
+  .status-pill {
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    color: rgba(23, 32, 51, 0.68);
+    padding: 6px 10px;
+    font-size: 0.76rem;
+    font-weight: 900;
+  }
+
+  h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.24rem, 2.4vw, 1.65rem);
+    line-height: 1.08;
+  }
+
+  p {
+    margin: 10px 0 0;
+    color: rgba(23, 32, 51, 0.7);
+    line-height: 1.52;
+  }
+
+  .lesson-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .status-pill.playable {
+    background: rgba(49, 166, 106, 0.14);
+    color: #14673d;
+  }
+
+  .lesson-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    padding: 0 16px;
+    font-size: 0.88rem;
+    font-weight: 900;
+  }
+</style>
+

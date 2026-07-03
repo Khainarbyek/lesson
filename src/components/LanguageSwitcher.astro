@@ -1,0 +1,91 @@
+---
+import { localeLabels, localizedPath, type LocaleCode } from "../lib/locales";
+import type { HomeCopy } from "../lib/content";
+
+type Props = {
+  currentLocale: LocaleCode;
+  currentPath?: string;
+  copy: HomeCopy;
+};
+
+const { currentLocale, currentPath = "/", copy } = Astro.props;
+const stripLocale = currentPath.replace(/^\/(en|ru|kk)/, "") || "/";
+const languageCodes: LocaleCode[] = ["en", "ru", "kk"];
+---
+
+<header class="site-header container-shell" aria-label="Primary navigation">
+  <a class="brand" href={localizedPath(currentLocale, "/")} aria-label={copy.productName}>
+    <span class="brand-mark" aria-hidden="true">B</span>
+    <span>{copy.productName}</span>
+  </a>
+
+  <nav class="nav-links" aria-label="Language">
+    {languageCodes.map((locale) => (
+      <a
+        class:list={["language-link", { active: locale === currentLocale }]}
+        href={localizedPath(locale, stripLocale)}
+        aria-current={locale === currentLocale ? "page" : undefined}
+        title={localeLabels[locale]}
+      >
+        {locale.toUpperCase()}
+      </a>
+    ))}
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    font-weight: 900;
+  }
+
+  .brand-mark {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--color-sky), var(--color-berry));
+    color: #fff;
+    box-shadow: var(--shadow-card);
+  }
+
+  .nav-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(23, 32, 51, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    padding: 5px;
+  }
+
+  .language-link {
+    display: grid;
+    min-width: 46px;
+    min-height: 38px;
+    place-items: center;
+    border-radius: 999px;
+    color: rgba(23, 32, 51, 0.7);
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+
+  .language-link.active {
+    background: var(--color-ink);
+    color: #fff;
+  }
+</style>
+

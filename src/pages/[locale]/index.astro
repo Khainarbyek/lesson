@@ -1,0 +1,200 @@
+---
+import AgeFilter from "../../components/AgeFilter.astro";
+import LanguageSwitcher from "../../components/LanguageSwitcher.astro";
+import LessonCard from "../../components/LessonCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAgeRanges, getHomeCopy, getLessons } from "../../lib/content";
+import { defaultLocale, isLocaleCode, localeCodes, type LocaleCode } from "../../lib/locales";
+
+export function getStaticPaths() {
+  return localeCodes.map((locale) => ({
+    params: { locale }
+  }));
+}
+
+const localeParam = Astro.params.locale;
+const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const copy = getHomeCopy(locale);
+const ageRanges = getAgeRanges(locale);
+const lessons = getLessons(locale);
+---
+
+<BaseLayout title={`${copy.productName} - ${copy.navLessons}`} description={copy.heroSubtitle} locale={locale}>
+  <LanguageSwitcher currentLocale={locale} currentPath={Astro.url.pathname} copy={copy} />
+
+  <main>
+    <section class="hero container-shell">
+      <div class="hero-copy">
+        <span class="eyebrow">{copy.navForParents}</span>
+        <h1>{copy.heroTitle}</h1>
+        <p>{copy.heroSubtitle}</p>
+      </div>
+      <div class="hero-board" aria-hidden="true">
+        <div class="tile letter">A</div>
+        <div class="tile animal">CAT</div>
+        <div class="tile number">1 2 3</div>
+        <div class="tile chess">MATH</div>
+      </div>
+    </section>
+
+    <section class="section-block container-shell" aria-labelledby="age-heading">
+      <div class="section-heading">
+        <h2 id="age-heading">{copy.ageTitle}</h2>
+      </div>
+      <AgeFilter ageRanges={ageRanges} />
+    </section>
+
+    <section class="section-block container-shell" aria-labelledby="lesson-heading">
+      <div class="section-heading">
+        <h2 id="lesson-heading">{copy.lessonTitle}</h2>
+      </div>
+      <div class="lesson-grid">
+        {lessons.map((lesson) => <LessonCard lesson={lesson} copy={copy} />)}
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    padding-bottom: 54px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+    align-items: center;
+    gap: clamp(24px, 5vw, 60px);
+    min-height: min(620px, calc(100vh - 90px));
+    padding: 42px 0 56px;
+  }
+
+  .hero-copy {
+    max-width: 710px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    border-radius: 999px;
+    background: rgba(255, 200, 87, 0.28);
+    color: #7a5400;
+    padding: 8px 12px;
+    font-weight: 900;
+  }
+
+  h1 {
+    margin: 18px 0 18px;
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 8vw, 6.2rem);
+    line-height: 0.94;
+    letter-spacing: 0;
+  }
+
+  .hero p {
+    max-width: 620px;
+    margin: 0;
+    color: rgba(23, 32, 51, 0.72);
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    line-height: 1.58;
+  }
+
+  .hero-board {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    transform: rotate(-1deg);
+  }
+
+  .tile {
+    display: grid;
+    min-height: 145px;
+    place-items: center;
+    border: 3px solid rgba(23, 32, 51, 0.1);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: var(--shadow-soft);
+    font-family: var(--font-display);
+    font-weight: 1000;
+  }
+
+  .letter {
+    color: var(--color-berry);
+    font-size: clamp(4rem, 11vw, 7rem);
+  }
+
+  .animal {
+    color: var(--color-leaf);
+    font-size: clamp(1.8rem, 5vw, 3.1rem);
+  }
+
+  .number {
+    color: var(--color-sky);
+    font-size: clamp(1.6rem, 5vw, 2.7rem);
+  }
+
+  .chess {
+    color: #9a6a00;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+  }
+
+  .section-block {
+    padding: 28px 0;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.04;
+  }
+
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 940px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .hero-board {
+      max-width: 520px;
+    }
+
+    .lesson-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding-top: 22px;
+    }
+
+    .hero-board {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tile {
+      min-height: 102px;
+      border-radius: 20px;
+    }
+
+    .lesson-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
