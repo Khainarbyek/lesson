@@ -1,0 +1,134 @@
+---
+import { LessonActivity } from "../../../components/LessonActivity";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getHomeCopy, getLessonById, getLessonIds, getLessons } from "../../../lib/content";
+import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../lib/locales";
+
+export function getStaticPaths() {
+  return localeCodes.flatMap((locale) =>
+    getLessonIds().map((lessonId) => ({
+      params: { locale, lessonId }
+    }))
+  );
+}
+
+const localeParam = Astro.params.locale;
+const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const lessonId = Astro.params.lessonId ?? "";
+const lesson = getLessonById(locale, lessonId);
+const copy = getHomeCopy(locale);
+const fallbackLesson = getLessons(locale)[0];
+const pageLesson = lesson ?? fallbackLesson;
+const title = `${pageLesson.title} - ${copy.productName}`;
+---
+
+<BaseLayout title={title} description={pageLesson.description} locale={locale}>
+  <main class="lesson-page">
+    <div class="container-shell lesson-nav">
+      <a href={localizedPath(locale, "/")} class="back-link">{copy.navLessons}</a>
+    </div>
+
+    {pageLesson.status === "playable" ? (
+      <LessonActivity client:load lesson={pageLesson} />
+    ) : (
+      <section class="coming-soon container-shell play-card">
+        <div class="soon-visual" aria-hidden="true">{pageLesson.icon}</div>
+        <span class="soon-pill">{copy.soonLabel}</span>
+        <h1>{pageLesson.title}</h1>
+        <p>{pageLesson.description}</p>
+        <p class="soon-note">{pageLesson.soonNote}</p>
+        <a class="home-link" href={localizedPath(locale, "/")}>{copy.exploreSoon}</a>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .lesson-page {
+    min-height: 100vh;
+    padding: 24px 0 64px;
+  }
+
+  .lesson-nav {
+    margin-bottom: 28px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(23, 32, 51, 0.76);
+    padding: 0 14px;
+    font-weight: 900;
+  }
+
+  .back-link::before {
+    content: "<";
+    margin-right: 8px;
+  }
+
+  .coming-soon {
+    display: grid;
+    justify-items: start;
+    gap: 18px;
+    max-width: 760px;
+    padding: clamp(24px, 5vw, 42px);
+  }
+
+  .soon-visual {
+    display: grid;
+    width: 96px;
+    height: 96px;
+    place-items: center;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(255, 200, 87, 0.28), rgba(76, 154, 255, 0.2));
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 1000;
+  }
+
+  .soon-pill {
+    border-radius: 999px;
+    background: rgba(76, 154, 255, 0.14);
+    color: #245985;
+    padding: 8px 12px;
+    font-weight: 1000;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 5.2rem);
+    line-height: 0.96;
+    letter-spacing: 0;
+  }
+
+  p {
+    max-width: 650px;
+    margin: 0;
+    color: rgba(23, 32, 51, 0.72);
+    font-size: 1.12rem;
+    line-height: 1.6;
+  }
+
+  .soon-note {
+    border-left: 6px solid var(--color-sun);
+    padding-left: 16px;
+    font-weight: 800;
+  }
+
+  .home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    padding: 0 18px;
+    font-weight: 1000;
+  }
+</style>
+
