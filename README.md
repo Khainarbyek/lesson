@@ -1,6 +1,6 @@
-# BrightLearn MVP
+# Uyren MVP
 
-BrightLearn is a free children learning website MVP for English, Russian, and Kazakh learners. It starts with a broad lesson catalog and two playable activities for young children: Alphabet and Animals.
+Uyren is a free children learning website MVP for English, Russian, and Kazakh learners. It starts with a broad lesson catalog and two playable activities for young children: Alphabet and Animals.
 
 ## Features
 

@@ -85,7 +85,7 @@ export const locales: LocaleMeta[] = localeCodes.map((code) => ({
 
 const homeCopy: Record<LocaleCode, HomeCopy> = {
   en: {
-    productName: "BrightLearn",
+    productName: "Uyren",
     navLessons: "Lessons",
     navForParents: "For parents",
     heroTitle: "Learn by playing, one tiny adventure at a time",
@@ -98,7 +98,7 @@ const homeCopy: Record<LocaleCode, HomeCopy> = {
     exploreSoon: "Preview"
   },
   ru: {
-    productName: "BrightLearn",
+    productName: "Uyren",
     navLessons: "Уроки",
     navForParents: "Для родителей",
     heroTitle: "Учись через игру, по одному маленькому приключению",
@@ -111,7 +111,7 @@ const homeCopy: Record<LocaleCode, HomeCopy> = {
     exploreSoon: "Посмотреть"
   },
   kk: {
-    productName: "BrightLearn",
+    productName: "Uyren",
     navLessons: "Сабақтар",
     navForParents: "Ата-аналарға",
     heroTitle: "Үйрен де ойна, әр қадамда жаңа қызық аш",
@@ -579,4 +579,3 @@ export function getLessonById(locale: LocaleCode, lessonId: string): Lesson | un
 export function getLessonIds(): LessonId[] {
   return lessons.en.map((lesson) => lesson.id);
 }
-

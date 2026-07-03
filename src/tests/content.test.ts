@@ -12,6 +12,10 @@ describe("localized content", () => {
     expect(getHomeCopy("kk").heroTitle).toContain("Үйрен");
   });
 
+  it("uses Uyren as the product name in every locale", () => {
+    expect(locales.map((locale) => getHomeCopy(locale.code).productName)).toEqual(["Uyren", "Uyren", "Uyren"]);
+  });
+
   it("marks Alphabet and Animals as playable", () => {
     const playable = getLessons("en").filter((lesson) => lesson.status === "playable");
 
@@ -22,4 +26,3 @@ describe("localized content", () => {
     expect(getLessonById("kk", "animals")?.title).toContain("Жануар");
   });
 });
-
