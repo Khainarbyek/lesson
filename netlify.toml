@@ -1,5 +1,6 @@
 [build]
   command = "npm run build"
+  ignore = "[ \"$BRANCH\" != \"main\" ]"
   publish = "dist"
 
 [build.environment]
@@ -9,4 +10,3 @@
   from = "/"
   to = "/en/"
   status = 302
-

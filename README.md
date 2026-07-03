@@ -67,11 +67,11 @@ npm run build
 7. Use publish directory `dist`.
 8. Deploy the `main` branch.
 
-After this, every push to `main` will trigger a new Netlify deploy.
+After this, every push to `main` will trigger a new Netlify deploy. Development work should happen on `dev`; Netlify builds are ignored for non-`main` branches by `netlify.toml`.
 
 ## CI/CD
 
-GitHub Actions runs on pushes to `main` and on pull requests:
+GitHub Actions runs on pushes to `main`, pushes to `dev`, and on pull requests:
 
 - `npm ci`
 - `npm run check`
@@ -82,3 +82,5 @@ Netlify handles production deploys from GitHub. If you later want GitHub Actions
 
 - `NETLIFY_AUTH_TOKEN`
 - `NETLIFY_SITE_ID`
+
+For Netlify dashboard settings, keep `main` as the production branch and disable branch deploys/deploy previews unless you intentionally want preview URLs.

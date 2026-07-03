@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -30,4 +31,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
