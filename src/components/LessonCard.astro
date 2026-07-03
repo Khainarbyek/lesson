@@ -36,10 +36,10 @@ const accentClass = `accent-${lesson.accent}`;
 <style>
   .lesson-card {
     display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: 18px;
-    min-height: 290px;
-    padding: 18px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    min-height: 180px;
+    padding: 14px;
     position: relative;
     overflow: hidden;
     transition: transform 180ms ease, box-shadow 180ms ease;
@@ -86,10 +86,10 @@ const accentClass = `accent-${lesson.accent}`;
 
   .lesson-visual {
     display: grid;
-    width: 76px;
-    height: 76px;
+    width: 64px;
+    height: 64px;
     place-items: center;
-    border-radius: 22px;
+    border-radius: 8px;
     background: #fff;
     color: var(--accent);
     font-family: var(--font-display);
@@ -130,6 +130,7 @@ const accentClass = `accent-${lesson.accent}`;
 
   .lesson-footer {
     display: flex;
+    grid-column: 1 / -1;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -151,5 +152,23 @@ const accentClass = `accent-${lesson.accent}`;
     font-size: 0.88rem;
     font-weight: 900;
   }
-</style>
 
+  @media (min-width: 700px) {
+    .lesson-card {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      min-height: 290px;
+      padding: 18px;
+    }
+
+    .lesson-footer {
+      grid-column: auto;
+    }
+
+    .lesson-visual {
+      width: 76px;
+      height: 76px;
+    }
+  }
+</style>

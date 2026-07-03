@@ -60,7 +60,7 @@ a {
 
 .play-card {
   border: 2px solid rgba(23, 32, 51, 0.08);
-  border-radius: 24px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.86);
   box-shadow: var(--shadow-card);
 }

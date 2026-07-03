@@ -16,6 +16,16 @@ describe("localized content", () => {
     expect(locales.map((locale) => getHomeCopy(locale.code).productName)).toEqual(["Uyren", "Uyren", "Uyren"]);
   });
 
+  it("defines the mobile-first start flow for each locale", () => {
+    expect(getHomeCopy("en").startFlow.map((step) => step.title)).toEqual([
+      "Choose language",
+      "Choose age",
+      "Pick a lesson"
+    ]);
+    expect(getHomeCopy("ru").startFlow).toHaveLength(3);
+    expect(getHomeCopy("kk").startFlow).toHaveLength(3);
+  });
+
   it("marks Alphabet and Animals as playable", () => {
     const playable = getLessons("en").filter((lesson) => lesson.status === "playable");
 

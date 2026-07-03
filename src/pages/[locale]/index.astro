@@ -3,8 +3,8 @@ import AgeFilter from "../../components/AgeFilter.astro";
 import LanguageSwitcher from "../../components/LanguageSwitcher.astro";
 import LessonCard from "../../components/LessonCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getAgeRanges, getHomeCopy, getLessons } from "../../lib/content";
-import { defaultLocale, isLocaleCode, localeCodes, type LocaleCode } from "../../lib/locales";
+import { getAgeRanges, getHomeCopy, getLessons, locales as availableLocales } from "../../lib/content";
+import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../lib/locales";
 
 export function getStaticPaths() {
   return localeCodes.map((locale) => ({
@@ -28,6 +28,32 @@ const lessons = getLessons(locale);
         <span class="eyebrow">{copy.navForParents}</span>
         <h1>{copy.heroTitle}</h1>
         <p>{copy.heroSubtitle}</p>
+        <div class="language-choice" aria-label={copy.startFlow[0].title}>
+          {availableLocales.map((language) => (
+            <a
+              class:list={["language-choice-link", { active: language.code === locale }]}
+              href={localizedPath(language.code, "/")}
+              aria-current={language.code === locale ? "page" : undefined}
+            >
+              <strong>{language.code.toUpperCase()}</strong>
+              <span>{language.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="start-panel play-card" aria-labelledby="start-flow-heading">
+        <h2 id="start-flow-heading">{copy.startFlowTitle}</h2>
+        <ol class="start-flow">
+          {copy.startFlow.map((step, index) => (
+            <li>
+              <span class="step-number">{index + 1}</span>
+              <div>
+                <strong>{step.title}</strong>
+                <p>{step.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
       <div class="hero-board" aria-hidden="true">
         <div class="tile letter">A</div>
@@ -40,6 +66,7 @@ const lessons = getLessons(locale);
     <section class="section-block container-shell" aria-labelledby="age-heading">
       <div class="section-heading">
         <h2 id="age-heading">{copy.ageTitle}</h2>
+        <p>{copy.ageLead}</p>
       </div>
       <AgeFilter ageRanges={ageRanges} />
     </section>
@@ -47,6 +74,7 @@ const lessons = getLessons(locale);
     <section class="section-block container-shell" aria-labelledby="lesson-heading">
       <div class="section-heading">
         <h2 id="lesson-heading">{copy.lessonTitle}</h2>
+        <p>{copy.lessonLead}</p>
       </div>
       <div class="lesson-grid">
         {lessons.map((lesson) => <LessonCard lesson={lesson} copy={copy} />)}
@@ -57,60 +85,146 @@ const lessons = getLessons(locale);
 
 <style>
   main {
-    padding-bottom: 54px;
+    padding-bottom: 48px;
   }
 
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-    align-items: center;
-    gap: clamp(24px, 5vw, 60px);
-    min-height: min(620px, calc(100vh - 90px));
-    padding: 42px 0 56px;
+    gap: 18px;
+    padding: 16px 0 30px;
   }
 
   .hero-copy {
-    max-width: 710px;
+    display: grid;
+    gap: 14px;
   }
 
   .eyebrow {
     display: inline-flex;
+    width: fit-content;
     border-radius: 999px;
     background: rgba(255, 200, 87, 0.28);
     color: #7a5400;
-    padding: 8px 12px;
+    padding: 7px 11px;
+    font-size: 0.82rem;
     font-weight: 900;
   }
 
   h1 {
-    margin: 18px 0 18px;
+    margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.8rem, 8vw, 6.2rem);
-    line-height: 0.94;
+    font-size: clamp(2.45rem, 14vw, 4.8rem);
+    line-height: 0.96;
     letter-spacing: 0;
   }
 
   .hero p {
-    max-width: 620px;
     margin: 0;
     color: rgba(23, 32, 51, 0.72);
-    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    font-size: 1.02rem;
     line-height: 1.58;
+  }
+
+  .language-choice {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .language-choice-link {
+    display: grid;
+    min-height: 64px;
+    place-items: center;
+    border: 2px solid rgba(23, 32, 51, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.78);
+    padding: 8px 6px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+  }
+
+  .language-choice-link.active {
+    border-color: rgba(76, 154, 255, 0.48);
+    background: #fff;
+  }
+
+  .language-choice-link strong {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    line-height: 1;
+  }
+
+  .language-choice-link span {
+    color: rgba(23, 32, 51, 0.62);
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .start-panel {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .start-panel h2 {
+    font-size: 1.45rem;
+  }
+
+  .start-flow {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .start-flow li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .step-number {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 1000;
+  }
+
+  .start-flow strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    line-height: 1.15;
+  }
+
+  .start-flow p {
+    margin: 3px 0 0;
+    color: rgba(23, 32, 51, 0.62);
+    font-size: 0.9rem;
+    line-height: 1.35;
   }
 
   .hero-board {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    transform: rotate(-1deg);
+    gap: 10px;
   }
 
   .tile {
     display: grid;
-    min-height: 145px;
+    min-height: 96px;
     place-items: center;
     border: 3px solid rgba(23, 32, 51, 0.1);
-    border-radius: 28px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.84);
     box-shadow: var(--shadow-soft);
     font-family: var(--font-display);
@@ -119,82 +233,110 @@ const lessons = getLessons(locale);
 
   .letter {
     color: var(--color-berry);
-    font-size: clamp(4rem, 11vw, 7rem);
+    font-size: clamp(3.6rem, 18vw, 6rem);
   }
 
   .animal {
     color: var(--color-leaf);
-    font-size: clamp(1.8rem, 5vw, 3.1rem);
+    font-size: clamp(1.6rem, 7vw, 2.6rem);
   }
 
   .number {
     color: var(--color-sky);
-    font-size: clamp(1.6rem, 5vw, 2.7rem);
+    font-size: clamp(1.35rem, 6vw, 2.3rem);
   }
 
   .chess {
     color: #9a6a00;
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-size: clamp(1.25rem, 6vw, 2.2rem);
   }
 
   .section-block {
-    padding: 28px 0;
+    padding: 22px 0;
   }
 
   .section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 16px;
+    display: grid;
+    gap: 8px;
     margin-bottom: 18px;
   }
 
   h2 {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-size: clamp(1.65rem, 8vw, 2.8rem);
     line-height: 1.04;
+  }
+
+  .section-heading p {
+    max-width: 620px;
+    margin: 0;
+    color: rgba(23, 32, 51, 0.68);
+    font-size: 0.98rem;
+    line-height: 1.52;
   }
 
   .lesson-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  @media (max-width: 940px) {
+  @media (min-width: 700px) {
     .hero {
-      grid-template-columns: 1fr;
-      min-height: auto;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.86fr);
+      grid-template-areas:
+        "copy panel"
+        "copy board";
+      align-items: start;
+      gap: 20px;
+      padding: 28px 0 40px;
+    }
+
+    .hero-copy {
+      grid-area: copy;
+    }
+
+    .start-panel {
+      grid-area: panel;
     }
 
     .hero-board {
-      max-width: 520px;
+      grid-area: board;
     }
 
     .lesson-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
   }
 
-  @media (max-width: 640px) {
+  @media (min-width: 1040px) {
     .hero {
-      padding-top: 22px;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.72fr);
+      align-items: center;
+      gap: 28px;
+      padding: 38px 0 52px;
+    }
+
+    .start-panel {
+      align-self: end;
     }
 
     .hero-board {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      grid-column: auto;
+      gap: 14px;
+      transform: rotate(-1deg);
+      align-self: start;
     }
 
     .tile {
-      min-height: 102px;
-      border-radius: 20px;
+      min-height: 138px;
     }
 
     .lesson-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
   }
 </style>
-

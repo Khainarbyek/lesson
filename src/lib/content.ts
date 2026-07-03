@@ -15,12 +15,21 @@ export type HomeCopy = {
   navForParents: string;
   heroTitle: string;
   heroSubtitle: string;
+  startFlowTitle: string;
+  startFlow: StartFlowStep[];
   ageTitle: string;
+  ageLead: string;
   lessonTitle: string;
+  lessonLead: string;
   playableLabel: string;
   soonLabel: string;
   startLesson: string;
   exploreSoon: string;
+};
+
+export type StartFlowStep = {
+  title: string;
+  description: string;
 };
 
 export type AgeRange = {
@@ -90,8 +99,16 @@ const homeCopy: Record<LocaleCode, HomeCopy> = {
     navForParents: "For parents",
     heroTitle: "Learn by playing, one tiny adventure at a time",
     heroSubtitle: "Choose a language, pick an age range, and start with colorful lessons made for children and guided adults.",
+    startFlowTitle: "Start in three taps",
+    startFlow: [
+      { title: "Choose language", description: "English, Russian, or Kazakh" },
+      { title: "Choose age", description: "3-5, 6-8, or 9+" },
+      { title: "Pick a lesson", description: "Play now or preview what is next" }
+    ],
     ageTitle: "Choose an age range",
+    ageLead: "Big buttons for small hands, with simple paths for parents and teachers.",
     lessonTitle: "Learning worlds",
+    lessonLead: "Start with playable lessons, then grow into math, chess, computers, and science.",
     playableLabel: "Play",
     soonLabel: "Soon",
     startLesson: "Start lesson",
@@ -103,8 +120,16 @@ const homeCopy: Record<LocaleCode, HomeCopy> = {
     navForParents: "Для родителей",
     heroTitle: "Учись через игру, по одному маленькому приключению",
     heroSubtitle: "Выберите язык, возраст и начните с ярких уроков для детей и взрослых помощников.",
+    startFlowTitle: "Начните за три нажатия",
+    startFlow: [
+      { title: "Выберите язык", description: "Английский, русский или казахский" },
+      { title: "Выберите возраст", description: "3-5, 6-8 или 9+" },
+      { title: "Выберите урок", description: "Играйте сейчас или смотрите, что будет дальше" }
+    ],
     ageTitle: "Выберите возраст",
+    ageLead: "Большие кнопки для детей и понятный путь для родителей и учителей.",
     lessonTitle: "Миры обучения",
+    lessonLead: "Начните с игровых уроков, затем переходите к математике, шахматам, компьютерам и науке.",
     playableLabel: "Играть",
     soonLabel: "Скоро",
     startLesson: "Начать урок",
@@ -116,8 +141,16 @@ const homeCopy: Record<LocaleCode, HomeCopy> = {
     navForParents: "Ата-аналарға",
     heroTitle: "Үйрен де ойна, әр қадамда жаңа қызық аш",
     heroSubtitle: "Тілді, жасты таңдап, балалар мен ересек көмекшілерге арналған түрлі түсті сабақтарды бастаңыз.",
+    startFlowTitle: "Үш қадаммен бастаңыз",
+    startFlow: [
+      { title: "Тілді таңдаңыз", description: "Ағылшын, орыс немесе қазақ тілі" },
+      { title: "Жасты таңдаңыз", description: "3-5, 6-8 немесе 9+" },
+      { title: "Сабақты таңдаңыз", description: "Қазір ойнаңыз немесе келесі сабақтарды көріңіз" }
+    ],
     ageTitle: "Жас аралығын таңдаңыз",
+    ageLead: "Балаларға ыңғайлы үлкен батырмалар және ата-ана мен мұғалімге түсінікті жол.",
     lessonTitle: "Үйрену әлемдері",
+    lessonLead: "Алдымен ойын сабақтарынан бастап, кейін математика, шахмат, компьютер және ғылымға өтіңіз.",
     playableLabel: "Ойнау",
     soonLabel: "Жақында",
     startLesson: "Сабақты бастау",
