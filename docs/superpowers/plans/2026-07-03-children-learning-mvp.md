@@ -13,10 +13,8 @@
 ## File Structure
 
 - `package.json` - npm scripts and dependencies.
-- `astro.config.mjs` - Astro config with React and Tailwind integrations.
+- `astro.config.mjs` - Astro config with React integration and the Tailwind 4 Vite plugin.
 - `tsconfig.json` - TypeScript config.
-- `tailwind.config.mjs` - Tailwind content scanning and theme tokens.
-- `postcss.config.mjs` - Tailwind/PostCSS wiring.
 - `netlify.toml` - Netlify build and publish configuration.
 - `.github/workflows/ci.yml` - CI workflow for install, checks, tests, and build.
 - `README.md` - project overview, local commands, and free hosting guide.
@@ -42,8 +40,6 @@
 - Create: `package.json`
 - Create: `astro.config.mjs`
 - Create: `tsconfig.json`
-- Create: `tailwind.config.mjs`
-- Create: `postcss.config.mjs`
 - Create: `src/env.d.ts`
 - Create: `src/styles/global.css`
 
@@ -52,8 +48,8 @@
 Run:
 
 ```bash
-npm install astro @astrojs/react @astrojs/tailwind react react-dom tailwindcss @tailwindcss/vite
-npm install --save-dev typescript vitest jsdom @testing-library/react @testing-library/jest-dom @types/react @types/react-dom
+npm install astro @astrojs/react react react-dom tailwindcss @tailwindcss/vite
+npm install --save-dev @astrojs/check typescript vitest jsdom @testing-library/react @testing-library/jest-dom @types/react @types/react-dom
 ```
 
 Expected: `package.json` and `package-lock.json` are created or updated, and npm exits successfully.
@@ -81,18 +77,21 @@ Create `package.json` with scripts matching this shape:
 
 Keep dependency versions from npm install instead of hardcoding stale versions.
 
-- [ ] **Step 3: Configure Astro, TypeScript, Tailwind, and PostCSS**
+- [ ] **Step 3: Configure Astro, TypeScript, and Tailwind 4**
 
 Create `astro.config.mjs`:
 
 ```js
 import react from "@astrojs/react";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  integrations: [react(), tailwind()],
-  output: "static"
+  integrations: [react()],
+  output: "static",
+  vite: {
+    plugins: [tailwindcss()]
+  }
 });
 ```
 
@@ -111,43 +110,6 @@ Create `tsconfig.json`:
 }
 ```
 
-Create `tailwind.config.mjs`:
-
-```js
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ["Nunito", "Inter", "system-ui", "sans-serif"],
-        body: ["Inter", "system-ui", "sans-serif"]
-      },
-      colors: {
-        ink: "#172033",
-        berry: "#d9487d",
-        sky: "#4c9aff",
-        leaf: "#31a66a",
-        sun: "#ffc857",
-        paper: "#fffaf0"
-      }
-    }
-  },
-  plugins: []
-};
-```
-
-Create `postcss.config.mjs`:
-
-```js
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {}
-  }
-};
-```
-
 Create `src/env.d.ts`:
 
 ```ts
@@ -157,7 +119,7 @@ Create `src/env.d.ts`:
 
 - [ ] **Step 4: Add the global visual foundation**
 
-Create `src/styles/global.css` with body styles, responsive card utilities, focus rings, and reduced-motion support. Use a bright but balanced palette with sky, berry, leaf, and sun accents instead of a one-color theme.
+Create `src/styles/global.css` with `@import "tailwindcss";`, Tailwind 4 `@theme` tokens, body styles, responsive card utilities, focus rings, and reduced-motion support. Use a bright but balanced palette with sky, berry, leaf, and sun accents instead of a one-color theme.
 
 - [ ] **Step 5: Verify scaffold**
 
@@ -174,7 +136,7 @@ Expected: `astro check` runs. If it fails because no pages exist yet, continue t
 Run:
 
 ```bash
-git add package.json package-lock.json astro.config.mjs tsconfig.json tailwind.config.mjs postcss.config.mjs src/env.d.ts src/styles/global.css
+git add package.json package-lock.json astro.config.mjs tsconfig.json src/env.d.ts src/styles/global.css docs/superpowers/plans/2026-07-03-children-learning-mvp.md
 git commit -m "chore: scaffold Astro learning site"
 ```
 
@@ -646,4 +608,3 @@ git push origin main
 ```
 
 Run the push only if the user asks Codex to push or if credentials are already configured and the user explicitly wants it.
-

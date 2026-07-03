@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Nunito", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --color-ink: #172033;
+  --color-berry: #d9487d;
+  --color-sky: #4c9aff;
+  --color-leaf: #31a66a;
+  --color-sun: #ffc857;
+  --color-paper: #fffaf0;
+}
+
+:root {
+  color-scheme: light;
+  --shadow-soft: 0 18px 45px rgba(32, 43, 76, 0.12);
+  --shadow-card: 0 12px 28px rgba(32, 43, 76, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 200, 87, 0.24), transparent 34rem),
+    radial-gradient(circle at 85% 8%, rgba(76, 154, 255, 0.2), transparent 28rem),
+    linear-gradient(180deg, #fffdf7 0%, #eef8ff 56%, #f7fff5 100%);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 4px solid rgba(76, 154, 255, 0.42);
+  outline-offset: 4px;
+}
+
+.container-shell {
+  width: min(1160px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.play-card {
+  border: 2px solid rgba(23, 32, 51, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-card);
+}
+
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
