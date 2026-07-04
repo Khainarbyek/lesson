@@ -4,6 +4,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getHomeCopy, getLessonById, getLessonIds, getLessons } from "../../../lib/content";
 import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../lib/locales";
 import { getLocalizedAlternates } from "../../../lib/seo";
+import { ChevronLeft } from "lucide-react";
 
 export function getStaticPaths() {
   return localeCodes.flatMap((locale) =>
@@ -34,9 +35,7 @@ const lessonPath = `/lessons/${pageLesson.id}`;
   <main class="lesson-page">
     <div class="container-shell lesson-nav">
       <a href={localizedPath(locale, "/")} class="back-link" aria-label={copy.navLessons}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M15.75 19.5 8.25 12l7.5-7.5" />
-        </svg>
+        <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2.4} />
       </a>
     </div>
 

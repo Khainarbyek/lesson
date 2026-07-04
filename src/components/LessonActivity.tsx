@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
 import type { PlayableLesson } from "../lib/content";
 import { getLessonProgress, saveLessonProgress, type LessonProgress } from "../lib/progress";
 
@@ -8,41 +9,6 @@ type Props = {
 
 type Feedback = "correct" | "incorrect" | null;
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
-
-function SpeakerIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M6.75 8.25 11.47 3.53a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.5a.75.75 0 0 1-.75-.75v-6a.75.75 0 0 1 .75-.75h2.25Z" />
-      <path d="M16.46 8.29a5.25 5.25 0 0 1 0 7.42M19.11 5.64a9 9 0 0 1 0 12.72" />
-    </svg>
-  );
-}
-
-function ChevronUpIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-    </svg>
-  );
-}
-
-function ResetIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M16.02 9.35h3.68V5.67" />
-      <path d="M19.1 9.35A7.5 7.5 0 1 0 21 14.33" />
-      <path d="M9 15h6" />
-    </svg>
-  );
-}
 
 function getCanvasContext(canvas: HTMLCanvasElement) {
   try {
@@ -181,15 +147,15 @@ export function LessonActivity({ lesson }: Props) {
           <div className="number-controls" aria-label={lesson.subject}>
             {hasPreviousCard && (
               <button className="icon-button secondary" type="button" onClick={previousCard} aria-label={activity.copy.previous}>
-                <ChevronUpIcon />
+                <ChevronUp aria-hidden="true" focusable="false" strokeWidth={2.4} />
               </button>
             )}
             <button className="icon-button listen-button" type="button" onClick={speak} aria-label={activity.copy.listen}>
-              <SpeakerIcon />
+              <Volume2 aria-hidden="true" focusable="false" strokeWidth={2.4} />
             </button>
             {hasNextCard && (
               <button className="icon-button" type="button" onClick={nextCard} aria-label={activity.copy.next}>
-                <ChevronDownIcon />
+                <ChevronDown aria-hidden="true" focusable="false" strokeWidth={2.4} />
               </button>
             )}
           </div>
@@ -242,7 +208,7 @@ export function LessonActivity({ lesson }: Props) {
                 onPointerLeave={stopDrawing}
               />
               <button className="icon-button drawing-clear-button" type="button" onClick={clearDrawing} aria-label={activity.copy.clearDrawing}>
-                <ResetIcon />
+                <RotateCcw aria-hidden="true" focusable="false" strokeWidth={2.4} />
               </button>
             </div>
           </div>
