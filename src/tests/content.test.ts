@@ -31,10 +31,36 @@ describe("localized content", () => {
     expect(getHomeCopy("kk").startFlow).toHaveLength(3);
   });
 
-  it("marks Alphabet and Animals as playable", () => {
+  it("marks Alphabet, Animals, and Math as playable", () => {
     const playable = getLessons("en").filter((lesson) => lesson.status === "playable");
 
-    expect(playable.map((lesson) => lesson.id)).toEqual(["alphabet", "animals"]);
+    expect(playable.map((lesson) => lesson.id)).toEqual(["alphabet", "animals", "math"]);
+  });
+
+  it("marks Math as a playable numbers lesson", () => {
+    const math = getLessonById("en", "math");
+
+    expect(math?.status).toBe("playable");
+    if (!math || math.status !== "playable") {
+      throw new Error("Missing playable math lesson");
+    }
+
+    expect(math.activity.type).toBe("number-flashcards");
+  });
+
+  it("defines localized number cards from 0 through 10", () => {
+    for (const locale of locales) {
+      const math = getLessonById(locale.code, "math");
+      if (!math || math.status !== "playable" || math.activity.type !== "number-flashcards") {
+        throw new Error(`Missing number flashcards for ${locale.code}`);
+      }
+
+      expect(math.activity.cards.map((card) => card.value)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      for (const card of math.activity.cards) {
+        expect(card.word.trim().length).toBeGreaterThan(0);
+        expect(card.speechText.trim().length).toBeGreaterThan(0);
+      }
+    }
   });
 
   it("defines lesson image metadata for every locale", () => {

@@ -52,10 +52,26 @@ export type ActivityPrompt = {
   correctChoiceId: string;
 };
 
+export type NumberFlashcard = {
+  value: number;
+  word: string;
+  speechText: string;
+  objectsLabel: string;
+};
+
 export type ActivityCopy = {
   correct: string;
   incorrect: string;
   next: string;
+  progress: string;
+};
+
+export type NumberFlashcardCopy = {
+  listen: string;
+  next: string;
+  previous: string;
+  writePrompt: string;
+  objectsLabel: string;
   progress: string;
 };
 
@@ -79,11 +95,17 @@ export type LessonBase = {
 
 export type PlayableLesson = LessonBase & {
   status: "playable";
-  activity: {
-    type: "choice";
-    copy: ActivityCopy;
-    prompts: ActivityPrompt[];
-  };
+  activity:
+    | {
+        type: "choice";
+        copy: ActivityCopy;
+        prompts: ActivityPrompt[];
+      }
+    | {
+        type: "number-flashcards";
+        copy: NumberFlashcardCopy;
+        cards: NumberFlashcard[];
+      };
 };
 
 export type ComingSoonLesson = LessonBase & {
@@ -198,6 +220,54 @@ function lessonImage(id: LessonId, alt: string): LessonImage {
   };
 }
 
+const numberWords: Record<LocaleCode, string[]> = {
+  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+  ru: ["ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять"],
+  kk: ["нөл", "бір", "екі", "үш", "төрт", "бес", "алты", "жеті", "сегіз", "тоғыз", "он"]
+};
+
+const objectLabels: Record<LocaleCode, string[]> = {
+  en: ["No apples", "1 apple", "2 apples", "3 apples", "4 apples", "5 apples", "6 apples", "7 apples", "8 apples", "9 apples", "10 apples"],
+  ru: ["Нет яблок", "1 яблоко", "2 яблока", "3 яблока", "4 яблока", "5 яблок", "6 яблок", "7 яблок", "8 яблок", "9 яблок", "10 яблок"],
+  kk: ["Алма жоқ", "1 алма", "2 алма", "3 алма", "4 алма", "5 алма", "6 алма", "7 алма", "8 алма", "9 алма", "10 алма"]
+};
+
+const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
+  en: {
+    listen: "Listen",
+    next: "Next number",
+    previous: "Previous number",
+    writePrompt: "Write this number on paper, then trace it with your finger.",
+    objectsLabel: "Count together",
+    progress: "number card"
+  },
+  ru: {
+    listen: "Слушать",
+    next: "Следующее число",
+    previous: "Предыдущее число",
+    writePrompt: "Напиши это число на бумаге, затем обведи его пальцем.",
+    objectsLabel: "Считаем вместе",
+    progress: "карточка с числом"
+  },
+  kk: {
+    listen: "Тыңдау",
+    next: "Келесі сан",
+    previous: "Алдыңғы сан",
+    writePrompt: "Бұл санды қағазға жаз, кейін саусағыңмен қайталап сыз.",
+    objectsLabel: "Бірге санайық",
+    progress: "сан карточкасы"
+  }
+};
+
+function numberCards(locale: LocaleCode): NumberFlashcard[] {
+  return numberWords[locale].map((word, value) => ({
+    value,
+    word,
+    speechText: word,
+    objectsLabel: objectLabels[locale][value]
+  }));
+}
+
 const lessons: Record<LocaleCode, Lesson[]> = {
   en: [
     {
@@ -293,15 +363,19 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Math Adventure",
-      description: "Counting and number games are coming next.",
+      description: "Swipe number cards, listen to each word, and practice writing 0-10.",
       subject: "Math",
       ageRange: "6-8",
-      status: "coming-soon",
+      status: "playable",
       icon: "123",
       image: lessonImage("math", "Counting blocks and numbers for early math practice"),
       accent: "sky",
       route: localizedPath("en", "/lessons/math"),
-      soonNote: "We will add counting, addition, and playful number challenges."
+      activity: {
+        type: "number-flashcards",
+        copy: numberFlashcardCopy.en,
+        cards: numberCards("en")
+      }
     },
     {
       id: "chess",
@@ -437,15 +511,19 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математическое приключение",
-      description: "Скоро появятся игры со счетом и числами.",
+      description: "Листай карточки чисел, слушай слова и тренируй написание 0-10.",
       subject: "Математика",
       ageRange: "6-8",
-      status: "coming-soon",
+      status: "playable",
       icon: "123",
       image: lessonImage("math", "Кубики и числа для первых занятий математикой"),
       accent: "sky",
       route: localizedPath("ru", "/lessons/math"),
-      soonNote: "Мы добавим счет, сложение и веселые задания с числами."
+      activity: {
+        type: "number-flashcards",
+        copy: numberFlashcardCopy.ru,
+        cards: numberCards("ru")
+      }
     },
     {
       id: "chess",
@@ -581,15 +659,19 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математика саяхаты",
-      description: "Санау мен сандар ойыны жақында қосылады.",
+      description: "Сан карточкаларын ауыстырып, сөзді тыңдап, 0-10 жазуды жаттықтыр.",
       subject: "Математика",
       ageRange: "6-8",
-      status: "coming-soon",
+      status: "playable",
       icon: "123",
       image: lessonImage("math", "Алғашқы математикаға арналған сандар мен текшелер"),
       accent: "sky",
       route: localizedPath("kk", "/lessons/math"),
-      soonNote: "Біз санау, қосу және қызықты сан тапсырмаларын қосамыз."
+      activity: {
+        type: "number-flashcards",
+        copy: numberFlashcardCopy.kk,
+        cards: numberCards("kk")
+      }
     },
     {
       id: "chess",

@@ -1,8 +1,12 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import { LessonActivity } from "../components/LessonActivity";
 import { getLessonById } from "../lib/content";
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("LessonActivity", () => {
   it("shows success feedback for a correct answer", () => {
@@ -28,5 +32,31 @@ describe("LessonActivity", () => {
 
     expect(screen.getByText(/Try again/i)).toBeInTheDocument();
   });
-});
 
+  it("renders number flashcards for the math lesson", () => {
+    const lesson = getLessonById("en", "math");
+    if (!lesson || lesson.status !== "playable") {
+      throw new Error("Missing math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(screen.getByRole("heading", { name: /Math Adventure/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("0 zero")).toHaveTextContent("0");
+    expect(screen.getByLabelText("0 zero")).toHaveTextContent("zero");
+    expect(screen.getByRole("button", { name: /Listen/i })).toBeInTheDocument();
+  });
+
+  it("navigates between number flashcards", () => {
+    const lesson = getLessonById("en", "math");
+    if (!lesson || lesson.status !== "playable") {
+      throw new Error("Missing math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+    fireEvent.click(screen.getByRole("button", { name: /Next number/i }));
+
+    expect(screen.getByLabelText("1 one")).toHaveTextContent("1");
+    expect(screen.getByLabelText("1 one")).toHaveTextContent("one");
+  });
+});
