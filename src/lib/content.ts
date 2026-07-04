@@ -3,6 +3,17 @@ import { localeCodes, localeLabels, localizedPath, type LocaleCode } from "./loc
 export type LessonStatus = "playable" | "coming-soon";
 export type LessonId = "alphabet" | "animals" | "math" | "chess" | "typing" | "chemistry";
 export type AgeRangeId = "3-5" | "6-8" | "9+";
+export type NumberRangeId =
+  | "0-10"
+  | "11-20"
+  | "21-30"
+  | "31-40"
+  | "41-50"
+  | "51-60"
+  | "61-70"
+  | "71-80"
+  | "81-90"
+  | "91-100";
 
 export type LocaleMeta = {
   code: LocaleCode;
@@ -36,6 +47,28 @@ export type AgeRange = {
   id: AgeRangeId;
   label: string;
   description: string;
+};
+
+export type MathTopic = {
+  id: "numbers";
+  title: string;
+  description: string;
+  icon: string;
+  route: string;
+};
+
+export type NumbersTopicCopy = {
+  title: string;
+  lead: string;
+};
+
+export type NumberRange = {
+  id: NumberRangeId;
+  label: string;
+  description: string;
+  route: string;
+  start: number;
+  end: number;
 };
 
 export type ActivityChoice = {
@@ -84,7 +117,7 @@ export type LessonImage = {
 };
 
 export type LessonBase = {
-  id: LessonId;
+  id: string;
   title: string;
   description: string;
   subject: string;
@@ -223,16 +256,122 @@ function lessonImage(id: LessonId, alt: string): LessonImage {
   };
 }
 
-const numberWords: Record<LocaleCode, string[]> = {
-  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
-  ru: ["ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять"],
-  kk: ["нөл", "бір", "екі", "үш", "төрт", "бес", "алты", "жеті", "сегіз", "тоғыз", "он"]
+const numberRangeDefinitions: Array<{ id: NumberRangeId; start: number; end: number }> = [
+  { id: "0-10", start: 0, end: 10 },
+  { id: "11-20", start: 11, end: 20 },
+  { id: "21-30", start: 21, end: 30 },
+  { id: "31-40", start: 31, end: 40 },
+  { id: "41-50", start: 41, end: 50 },
+  { id: "51-60", start: 51, end: 60 },
+  { id: "61-70", start: 61, end: 70 },
+  { id: "71-80", start: 71, end: 80 },
+  { id: "81-90", start: 81, end: 90 },
+  { id: "91-100", start: 91, end: 100 }
+];
+
+const baseNumberWords: Record<LocaleCode, string[]> = {
+  en: [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen"
+  ],
+  ru: [
+    "ноль",
+    "один",
+    "два",
+    "три",
+    "четыре",
+    "пять",
+    "шесть",
+    "семь",
+    "восемь",
+    "девять",
+    "десять",
+    "одиннадцать",
+    "двенадцать",
+    "тринадцать",
+    "четырнадцать",
+    "пятнадцать",
+    "шестнадцать",
+    "семнадцать",
+    "восемнадцать",
+    "девятнадцать"
+  ],
+  kk: [
+    "нөл",
+    "бір",
+    "екі",
+    "үш",
+    "төрт",
+    "бес",
+    "алты",
+    "жеті",
+    "сегіз",
+    "тоғыз",
+    "он",
+    "он бір",
+    "он екі",
+    "он үш",
+    "он төрт",
+    "он бес",
+    "он алты",
+    "он жеті",
+    "он сегіз",
+    "он тоғыз"
+  ]
 };
 
-const objectLabels: Record<LocaleCode, string[]> = {
-  en: ["No apples", "1 apple", "2 apples", "3 apples", "4 apples", "5 apples", "6 apples", "7 apples", "8 apples", "9 apples", "10 apples"],
-  ru: ["Нет яблок", "1 яблоко", "2 яблока", "3 яблока", "4 яблока", "5 яблок", "6 яблок", "7 яблок", "8 яблок", "9 яблок", "10 яблок"],
-  kk: ["Алма жоқ", "1 алма", "2 алма", "3 алма", "4 алма", "5 алма", "6 алма", "7 алма", "8 алма", "9 алма", "10 алма"]
+const tensNumberWords: Record<LocaleCode, Record<number, string>> = {
+  en: {
+    20: "twenty",
+    30: "thirty",
+    40: "forty",
+    50: "fifty",
+    60: "sixty",
+    70: "seventy",
+    80: "eighty",
+    90: "ninety",
+    100: "one hundred"
+  },
+  ru: {
+    20: "двадцать",
+    30: "тридцать",
+    40: "сорок",
+    50: "пятьдесят",
+    60: "шестьдесят",
+    70: "семьдесят",
+    80: "восемьдесят",
+    90: "девяносто",
+    100: "сто"
+  },
+  kk: {
+    20: "жиырма",
+    30: "отыз",
+    40: "қырық",
+    50: "елу",
+    60: "алпыс",
+    70: "жетпіс",
+    80: "сексен",
+    90: "тоқсан",
+    100: "жүз"
+  }
 };
 
 const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
@@ -271,13 +410,127 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
   }
 };
 
-function numberCards(locale: LocaleCode): NumberFlashcard[] {
-  return numberWords[locale].map((word, value) => ({
-    value,
-    word,
-    speechText: word,
-    objectsLabel: objectLabels[locale][value]
-  }));
+const numbersTopicCopy: Record<LocaleCode, NumbersTopicCopy> = {
+  en: {
+    title: "Numbers",
+    lead: "Choose a number range, then listen, count apples, and draw each number."
+  },
+  ru: {
+    title: "Числа",
+    lead: "Выбери диапазон чисел, слушай, считай яблоки и обводи каждое число."
+  },
+  kk: {
+    title: "Сандар",
+    lead: "Сан аралығын таңда, тыңда, алма сана және әр санды сыз."
+  }
+};
+
+const mathTopicCopy: Record<LocaleCode, MathTopic> = {
+  en: {
+    id: "numbers",
+    title: "Numbers",
+    description: "Start with 0-10, then move through 11-20 and the next number ranges.",
+    icon: "123",
+    route: localizedPath("en", "/lessons/math/numbers")
+  },
+  ru: {
+    id: "numbers",
+    title: "Числа",
+    description: "Начни с 0-10, затем переходи к 11-20 и следующим диапазонам.",
+    icon: "123",
+    route: localizedPath("ru", "/lessons/math/numbers")
+  },
+  kk: {
+    id: "numbers",
+    title: "Сандар",
+    description: "0-10 сандарынан бастап, 11-20 және келесі аралықтарға өт.",
+    icon: "123",
+    route: localizedPath("kk", "/lessons/math/numbers")
+  }
+};
+
+function numberWord(locale: LocaleCode, value: number): string {
+  if (value < baseNumberWords[locale].length) {
+    return baseNumberWords[locale][value];
+  }
+
+  if (value === 100) {
+    return tensNumberWords[locale][100];
+  }
+
+  const tens = Math.floor(value / 10) * 10;
+  const ones = value % 10;
+  const tensWord = tensNumberWords[locale][tens];
+
+  return ones === 0 ? tensWord : `${tensWord} ${baseNumberWords[locale][ones]}`;
+}
+
+function appleLabel(locale: LocaleCode, value: number): string {
+  if (locale === "en") {
+    return value === 0 ? "No apples" : `${value} ${value === 1 ? "apple" : "apples"}`;
+  }
+
+  if (locale === "ru") {
+    if (value === 0) {
+      return "Нет яблок";
+    }
+
+    const lastTwo = value % 100;
+    const lastOne = value % 10;
+    if (lastTwo >= 11 && lastTwo <= 14) {
+      return `${value} яблок`;
+    }
+
+    if (lastOne === 1) {
+      return `${value} яблоко`;
+    }
+
+    if (lastOne >= 2 && lastOne <= 4) {
+      return `${value} яблока`;
+    }
+
+    return `${value} яблок`;
+  }
+
+  return value === 0 ? "Алма жоқ" : `${value} алма`;
+}
+
+function numberRangeTitle(locale: LocaleCode, range: { id: NumberRangeId }): string {
+  if (locale === "en") {
+    return `Numbers ${range.id}`;
+  }
+
+  if (locale === "ru") {
+    return `Числа ${range.id}`;
+  }
+
+  return `${range.id} сандары`;
+}
+
+function numberRangeDescription(locale: LocaleCode, range: { id: NumberRangeId }): string {
+  if (locale === "en") {
+    return `Practice ${range.id} with listening, apple counting, and drawing.`;
+  }
+
+  if (locale === "ru") {
+    return `Тренируй ${range.id}: слушай, считай яблоки и обводи.`;
+  }
+
+  return `${range.id} сандарын тыңдап, алма санап, сызуды жаттықтыр.`;
+}
+
+function numberCards(locale: LocaleCode, start = 0, end = 10): NumberFlashcard[] {
+  return Array.from({ length: end - start + 1 }, (_, index) => {
+    const value = start + index;
+    const word = numberWord(locale, value);
+
+    return {
+      value,
+      word,
+      speechText: word,
+      objectsLabel: appleLabel(locale, value)
+    };
+  });
 }
 
 const lessons: Record<LocaleCode, Lesson[]> = {
@@ -375,7 +628,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Math Adventure",
-      description: "Swipe number cards, listen to each word, and practice writing 0-10.",
+      description: "Choose number lessons, listen, count apples, and practice drawing.",
       subject: "Math",
       ageRange: "6-8",
       status: "playable",
@@ -523,7 +776,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математическое приключение",
-      description: "Листай карточки чисел, слушай слова и тренируй написание 0-10.",
+      description: "Выбирай уроки с числами, слушай, считай яблоки и тренируй письмо.",
       subject: "Математика",
       ageRange: "6-8",
       status: "playable",
@@ -671,7 +924,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математика саяхаты",
-      description: "Сан карточкаларын ауыстырып, сөзді тыңдап, 0-10 жазуды жаттықтыр.",
+      description: "Сан сабақтарын таңда, тыңда, алма сана және жазуды жаттықтыр.",
       subject: "Математика",
       ageRange: "6-8",
       status: "playable",
@@ -744,5 +997,49 @@ export function getLessonById(locale: LocaleCode, lessonId: string): Lesson | un
 }
 
 export function getLessonIds(): LessonId[] {
-  return lessons.en.map((lesson) => lesson.id);
+  return lessons.en.map((lesson) => lesson.id as LessonId);
+}
+
+export function getMathTopics(locale: LocaleCode): MathTopic[] {
+  return [mathTopicCopy[locale]];
+}
+
+export function getNumbersTopicCopy(locale: LocaleCode): NumbersTopicCopy {
+  return numbersTopicCopy[locale];
+}
+
+export function getNumberRangeIds(): NumberRangeId[] {
+  return numberRangeDefinitions.map((range) => range.id);
+}
+
+export function getNumberRanges(locale: LocaleCode): NumberRange[] {
+  return numberRangeDefinitions.map((range) => ({
+    ...range,
+    label: range.id,
+    description: numberRangeDescription(locale, range),
+    route: localizedPath(locale, `/lessons/math/numbers/${range.id}`)
+  }));
+}
+
+export function getNumberRangeLesson(locale: LocaleCode, rangeId: string): PlayableLesson | undefined {
+  const range = numberRangeDefinitions.find((item) => item.id === rangeId);
+  const math = getLessonById(locale, "math");
+
+  if (!range || !math || math.status !== "playable") {
+    return undefined;
+  }
+
+  return {
+    ...math,
+    id: `math-numbers-${range.id}`,
+    title: numberRangeTitle(locale, range),
+    description: numberRangeDescription(locale, range),
+    icon: range.id,
+    route: localizedPath(locale, `/lessons/math/numbers/${range.id}`),
+    activity: {
+      type: "number-flashcards",
+      copy: numberFlashcardCopy[locale],
+      cards: numberCards(locale, range.start, range.end)
+    }
+  };
 }

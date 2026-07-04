@@ -1,0 +1,69 @@
+---
+import { ChevronLeft } from "lucide-react";
+import { LessonActivity } from "../../../../../components/LessonActivity";
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import { getHomeCopy, getNumberRangeIds, getNumberRangeLesson } from "../../../../../lib/content";
+import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../../../lib/locales";
+import { getLocalizedAlternates } from "../../../../../lib/seo";
+
+export function getStaticPaths() {
+  return localeCodes.flatMap((locale) =>
+    getNumberRangeIds().map((rangeId) => ({
+      params: { locale, rangeId }
+    }))
+  );
+}
+
+const localeParam = Astro.params.locale;
+const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const rangeId = Astro.params.rangeId ?? "0-10";
+const rangeLesson = getNumberRangeLesson(locale, rangeId) ?? getNumberRangeLesson(locale, "0-10");
+const copy = getHomeCopy(locale);
+const resolvedRangeId = rangeLesson?.route.split("/").pop() ?? "0-10";
+const rangePath = `/lessons/math/numbers/${resolvedRangeId}`;
+---
+
+<BaseLayout
+  title={`${rangeLesson?.title ?? copy.productName} - ${copy.productName}`}
+  description={rangeLesson?.description ?? copy.heroSubtitle}
+  locale={locale}
+  canonicalPath={localizedPath(locale, rangePath)}
+  alternateLocales={getLocalizedAlternates(rangePath)}
+>
+  <main class="range-page">
+    <div class="container-shell lesson-nav">
+      <a href={localizedPath(locale, "/lessons/math/numbers")} class="back-link" aria-label={copy.navLessons}>
+        <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2.4} />
+      </a>
+    </div>
+
+    {rangeLesson && <LessonActivity client:load lesson={rangeLesson} />}
+  </main>
+</BaseLayout>
+
+<style>
+  .range-page {
+    min-height: 100vh;
+    padding: 12px 0 48px;
+  }
+
+  .lesson-nav {
+    margin-bottom: 8px;
+  }
+
+  .back-link {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(23, 32, 51, 0.76);
+    box-shadow: var(--shadow-card);
+  }
+
+  .back-link svg {
+    width: 24px;
+    height: 24px;
+  }
+</style>

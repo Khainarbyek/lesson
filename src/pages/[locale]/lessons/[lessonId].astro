@@ -1,7 +1,7 @@
 ---
 import { LessonActivity } from "../../../components/LessonActivity";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { getHomeCopy, getLessonById, getLessonIds, getLessons } from "../../../lib/content";
+import { getHomeCopy, getLessonById, getLessonIds, getLessons, getMathTopics } from "../../../lib/content";
 import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../lib/locales";
 import { getLocalizedAlternates } from "../../../lib/seo";
 import { ChevronLeft } from "lucide-react";
@@ -23,6 +23,8 @@ const fallbackLesson = getLessons(locale)[0];
 const pageLesson = lesson ?? fallbackLesson;
 const title = `${pageLesson.title} - ${copy.productName}`;
 const lessonPath = `/lessons/${pageLesson.id}`;
+const isMathSubject = pageLesson.id === "math";
+const mathTopics = isMathSubject ? getMathTopics(locale) : [];
 ---
 
 <BaseLayout
@@ -39,7 +41,24 @@ const lessonPath = `/lessons/${pageLesson.id}`;
       </a>
     </div>
 
-    {pageLesson.status === "playable" ? (
+    {isMathSubject ? (
+      <section class="subject-page container-shell play-card">
+        <span class="soon-pill">{pageLesson.ageRange}</span>
+        <h1>{pageLesson.title}</h1>
+        <p>{pageLesson.description}</p>
+        <div class="topic-grid" aria-label={pageLesson.title}>
+          {mathTopics.map((topic) => (
+            <a class="topic-card play-card" href={topic.route}>
+              <span aria-hidden="true">{topic.icon}</span>
+              <div>
+                <h2>{topic.title}</h2>
+                <p>{topic.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    ) : pageLesson.status === "playable" ? (
       <LessonActivity client:load lesson={pageLesson} />
     ) : (
       <section class="coming-soon container-shell play-card">
@@ -94,6 +113,57 @@ const lessonPath = `/lessons/${pageLesson.id}`;
     gap: 18px;
     max-width: 760px;
     padding: clamp(24px, 5vw, 42px);
+  }
+
+  .subject-page {
+    display: grid;
+    gap: 18px;
+    max-width: 860px;
+    padding: clamp(20px, 5vw, 38px);
+  }
+
+  .topic-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .topic-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 14px;
+    transition: transform 160ms ease, border-color 160ms ease;
+  }
+
+  .topic-card:hover {
+    border-color: rgba(76, 154, 255, 0.36);
+    transform: translateY(-2px);
+  }
+
+  .topic-card > span {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(76, 154, 255, 0.14);
+    color: #245985;
+    font-family: var(--font-display);
+    font-weight: 1000;
+  }
+
+  .topic-card h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 6vw, 2rem);
+    line-height: 1.05;
+  }
+
+  .topic-card p {
+    margin-top: 6px;
+    font-size: 0.96rem;
+    line-height: 1.42;
   }
 
   .soon-visual {

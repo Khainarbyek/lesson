@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LessonActivity } from "../components/LessonActivity";
-import { getLessonById } from "../lib/content";
+import { getLessonById, getNumberRangeLesson } from "../lib/content";
 
 class MockSpeechSynthesisUtterance {
   lang = "";
@@ -100,18 +100,37 @@ describe("LessonActivity", () => {
   });
 
   it("hides next on the final number card", () => {
-    const lesson = getLessonById("en", "math");
-    if (!lesson || lesson.status !== "playable") {
+    const lesson = getNumberRangeLesson("en", "0-10");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
       throw new Error("Missing math lesson");
     }
 
     render(<LessonActivity lesson={lesson} />);
 
-    for (let count = 0; count < 10; count += 1) {
+    for (let count = 0; count < lesson.activity.cards.length - 1; count += 1) {
       fireEvent.click(screen.getByRole("button", { name: /Next number/i }));
     }
 
     expect(screen.getByLabelText("10 ten")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Next number/i })).not.toBeInTheDocument();
+  });
+
+  it("renders the 11-20 number range as a separate activity", () => {
+    const lesson = getNumberRangeLesson("en", "11-20");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 11-20 math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(screen.getByLabelText("11 eleven")).toHaveTextContent("11");
+    expect(screen.getByText("1/10")).toBeInTheDocument();
+
+    for (let count = 0; count < lesson.activity.cards.length - 1; count += 1) {
+      fireEvent.click(screen.getByRole("button", { name: /Next number/i }));
+    }
+
+    expect(screen.getByLabelText("20 twenty")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Next number/i })).not.toBeInTheDocument();
   });
 

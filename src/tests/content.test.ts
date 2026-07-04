@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getHomeCopy, getLessonById, getLessons, locales } from "../lib/content";
+import { getHomeCopy, getLessonById, getLessons, getNumberRangeLesson, getNumberRanges, locales } from "../lib/content";
 import { defaultLocale } from "../lib/locales";
 
 describe("localized content", () => {
@@ -48,17 +48,49 @@ describe("localized content", () => {
     expect(math.activity.type).toBe("number-flashcards");
   });
 
-  it("defines localized number cards from 0 through 10", () => {
+  it("keeps the first numbers card from 0 through 10", () => {
     for (const locale of locales) {
-      const math = getLessonById(locale.code, "math");
-      if (!math || math.status !== "playable" || math.activity.type !== "number-flashcards") {
-        throw new Error(`Missing number flashcards for ${locale.code}`);
+      const firstRange = getNumberRangeLesson(locale.code, "0-10");
+      if (!firstRange || firstRange.activity.type !== "number-flashcards") {
+        throw new Error(`Missing first number range for ${locale.code}`);
       }
 
-      expect(math.activity.cards.map((card) => card.value)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      for (const card of math.activity.cards) {
+      expect(firstRange.activity.cards.map((card) => card.value)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    }
+  });
+
+  it("defines number range cards from 0-10 through 91-100", () => {
+    const ranges = getNumberRanges("en");
+
+    expect(ranges.map((range) => range.id)).toEqual([
+      "0-10",
+      "11-20",
+      "21-30",
+      "31-40",
+      "41-50",
+      "51-60",
+      "61-70",
+      "71-80",
+      "81-90",
+      "91-100"
+    ]);
+
+    expect(ranges[0].route).toBe("/en/lessons/math/numbers/0-10");
+    expect(ranges[1].route).toBe("/en/lessons/math/numbers/11-20");
+  });
+
+  it("builds localized number lessons for each range", () => {
+    for (const locale of locales) {
+      const secondRange = getNumberRangeLesson(locale.code, "11-20");
+      if (!secondRange || secondRange.activity.type !== "number-flashcards") {
+        throw new Error(`Missing second number range for ${locale.code}`);
+      }
+
+      expect(secondRange.activity.cards.map((card) => card.value)).toEqual([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+      for (const card of secondRange.activity.cards) {
         expect(card.word.trim().length).toBeGreaterThan(0);
         expect(card.speechText.trim().length).toBeGreaterThan(0);
+        expect(card.objectsLabel.trim().length).toBeGreaterThan(0);
       }
     }
   });
