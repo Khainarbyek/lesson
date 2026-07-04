@@ -8,14 +8,20 @@ type Props = {
 const { ageRanges } = Astro.props;
 ---
 
-<div class="age-grid" aria-label="Age ranges">
+<div class="age-grid" aria-label="Age ranges" data-age-filter-root>
   {ageRanges.map((range) => (
-    <a class="age-card play-card" href={`#age-${range.id}`} data-age={range.id}>
+    <button class="age-card play-card" type="button" data-age-filter={range.id} aria-pressed="false">
       <strong>{range.label}</strong>
       <span>{range.description}</span>
-    </a>
+    </button>
   ))}
 </div>
+
+<script>
+  import { setupAgeFilter } from "../lib/ageFilter";
+
+  setupAgeFilter();
+</script>
 
 <style>
   .age-grid {
@@ -31,13 +37,27 @@ const { ageRanges } = Astro.props;
     min-height: 84px;
     align-items: center;
     padding: 14px;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
     text-align: left;
     transition: transform 180ms ease, border-color 180ms ease;
   }
 
-  .age-card:hover {
+  .age-card:hover,
+  .age-card.active {
     border-color: rgba(76, 154, 255, 0.36);
     transform: translateY(-2px);
+  }
+
+  .age-card.active {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 14px 32px rgba(76, 154, 255, 0.18);
+  }
+
+  .age-card:focus-visible {
+    outline: 3px solid rgba(76, 154, 255, 0.46);
+    outline-offset: 3px;
   }
 
   .age-card strong {

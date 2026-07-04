@@ -11,7 +11,7 @@ const isPlayable = lesson.status === "playable";
 const accentClass = `accent-${lesson.accent}`;
 ---
 
-<article class:list={["lesson-card", "play-card", accentClass]} id={`age-${lesson.ageRange}`}>
+<article class:list={["lesson-card", "play-card", accentClass]} data-lesson-card data-age={lesson.ageRange}>
   <div class="lesson-visual">
     <img src={lesson.image.src} alt={lesson.image.alt} loading="lazy" width="320" height="210" />
     <span aria-hidden="true">{lesson.icon}</span>
