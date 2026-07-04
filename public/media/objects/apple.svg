@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Red apple</title>
+  <desc id="desc">A simple realistic red apple with a leaf.</desc>
+  <defs>
+    <radialGradient id="apple-shine" cx="36%" cy="28%" r="62%">
+      <stop offset="0" stop-color="#fff4ee"/>
+      <stop offset=".2" stop-color="#f76b61"/>
+      <stop offset=".62" stop-color="#d92734"/>
+      <stop offset="1" stop-color="#9f1728"/>
+    </radialGradient>
+    <linearGradient id="leaf" x1="98" x2="139" y1="31" y2="15" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f8d48"/>
+      <stop offset="1" stop-color="#86c85a"/>
+    </linearGradient>
+  </defs>
+  <path fill="#75461f" d="M83 46c-5-15-1-28 13-39 4-3 8 3 4 6-11 9-14 19-10 31 2 6-6 8-7 2Z"/>
+  <path fill="url(#leaf)" d="M98 37c13-22 34-25 46-17-5 17-24 28-46 17Z"/>
+  <path fill="#246f39" d="M101 35c12-5 23-9 35-13-10 8-21 13-35 13Z" opacity=".55"/>
+  <path fill="url(#apple-shine)" d="M77 45c9 0 13 5 20 5 8 0 14-6 25-2 24 8 32 38 22 69-9 30-28 40-45 32-7-3-12-3-19 0-17 8-36-2-45-32-10-31-2-61 22-69 8-3 14-3 20-3Z"/>
+  <path fill="#7d1326" d="M45 100c1 23 17 46 38 45-20 7-40-4-49-31-8-25-3-51 13-62-7 15-8 31-2 48Z" opacity=".35"/>
+  <path fill="#fff9f4" d="M58 60c13-7 28-5 36 3-17-1-30 5-39 17-4 5-9-15 3-20Z" opacity=".46"/>
+  <path fill="#5e0f1e" d="M75 49c4 5 16 5 22 1-6 11-18 12-22-1Z" opacity=".28"/>
+</svg>

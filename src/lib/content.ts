@@ -70,9 +70,12 @@ export type NumberFlashcardCopy = {
   listen: string;
   next: string;
   previous: string;
+  clearDrawing: string;
   writePrompt: string;
   objectsLabel: string;
   progress: string;
+  speechLocale: string;
+  speechFallbackLocales: string[];
 };
 
 export type LessonImage = {
@@ -237,25 +240,34 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     listen: "Listen",
     next: "Next number",
     previous: "Previous number",
+    clearDrawing: "Clear drawing",
     writePrompt: "Write this number on paper, then trace it with your finger.",
     objectsLabel: "Count together",
-    progress: "number card"
+    progress: "number card",
+    speechLocale: "en-US",
+    speechFallbackLocales: []
   },
   ru: {
     listen: "Слушать",
     next: "Следующее число",
     previous: "Предыдущее число",
+    clearDrawing: "Очистить рисунок",
     writePrompt: "Напиши это число на бумаге, затем обведи его пальцем.",
     objectsLabel: "Считаем вместе",
-    progress: "карточка с числом"
+    progress: "карточка с числом",
+    speechLocale: "ru-RU",
+    speechFallbackLocales: []
   },
   kk: {
     listen: "Тыңдау",
     next: "Келесі сан",
     previous: "Алдыңғы сан",
+    clearDrawing: "Сызуды тазалау",
     writePrompt: "Бұл санды қағазға жаз, кейін саусағыңмен қайталап сыз.",
     objectsLabel: "Бірге санайық",
-    progress: "сан карточкасы"
+    progress: "сан карточкасы",
+    speechLocale: "kk-KZ",
+    speechFallbackLocales: ["ru-RU"]
   }
 };
 
