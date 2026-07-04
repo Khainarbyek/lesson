@@ -9,8 +9,8 @@ type Props = {
 };
 
 const { currentLocale, currentPath = "/", copy } = Astro.props;
-const stripLocale = currentPath.replace(/^\/(en|ru|kk)/, "") || "/";
-const languageCodes: LocaleCode[] = ["en", "ru", "kk"];
+const stripLocale = currentPath.replace(/^\/(kk|ru|en)/, "") || "/";
+const languageCodes: LocaleCode[] = ["kk", "ru", "en"];
 const brandMark = copy.productName.slice(0, 1);
 ---
 

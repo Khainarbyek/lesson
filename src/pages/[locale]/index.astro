@@ -3,7 +3,7 @@ import AgeFilter from "../../components/AgeFilter.astro";
 import LanguageSwitcher from "../../components/LanguageSwitcher.astro";
 import LessonCard from "../../components/LessonCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getAgeRanges, getHomeCopy, getLessons, locales as availableLocales } from "../../lib/content";
+import { getAgeRanges, getHomeCopy, getLessons } from "../../lib/content";
 import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../lib/locales";
 import { getLocalizedAlternates } from "../../lib/seo";
 
@@ -36,18 +36,6 @@ const homePath = "/";
         <span class="eyebrow">{copy.navForParents}</span>
         <h1>{copy.heroTitle}</h1>
         <p>{copy.heroSubtitle}</p>
-        <div class="language-choice" aria-label={copy.startFlow[0].title}>
-          {availableLocales.map((language) => (
-            <a
-              class:list={["language-choice-link", { active: language.code === locale }]}
-              href={localizedPath(language.code, "/")}
-              aria-current={language.code === locale ? "page" : undefined}
-            >
-              <strong>{language.code.toUpperCase()}</strong>
-              <span>{language.label}</span>
-            </a>
-          ))}
-        </div>
       </div>
       <div class="start-panel play-card" aria-labelledby="start-flow-heading">
         <h2 id="start-flow-heading">{copy.startFlowTitle}</h2>
@@ -131,43 +119,6 @@ const homePath = "/";
     color: rgba(23, 32, 51, 0.72);
     font-size: 1.02rem;
     line-height: 1.58;
-  }
-
-  .language-choice {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .language-choice-link {
-    display: grid;
-    min-height: 64px;
-    place-items: center;
-    border: 2px solid rgba(23, 32, 51, 0.08);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.78);
-    padding: 8px 6px;
-    text-align: center;
-    box-shadow: var(--shadow-card);
-  }
-
-  .language-choice-link.active {
-    border-color: rgba(76, 154, 255, 0.48);
-    background: #fff;
-  }
-
-  .language-choice-link strong {
-    font-family: var(--font-display);
-    font-size: 1.02rem;
-    line-height: 1;
-  }
-
-  .language-choice-link span {
-    color: rgba(23, 32, 51, 0.62);
-    font-size: 0.72rem;
-    font-weight: 800;
-    line-height: 1.2;
   }
 
   .start-panel {
