@@ -167,27 +167,6 @@ export function LessonActivity({ lesson }: Props) {
             <span className="number-word">{card.word}</span>
           </div>
 
-          <div className="count-panel" aria-label={activity.copy.objectsLabel}>
-            <div className="count-objects" aria-label={card.objectsLabel}>
-              {objects.length === 0 ? (
-                <span className="zero-objects" aria-hidden="true" />
-              ) : (
-                objects.map((object) => (
-                  <img
-                    key={object}
-                    className="apple-image"
-                    src="/media/objects/apple.svg"
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    width="52"
-                    height="52"
-                  />
-                ))
-              )}
-            </div>
-          </div>
-
           <div className="writing-panel">
             <p className="sr-only">{activity.copy.writePrompt}</p>
             <div className="trace-board">
@@ -212,6 +191,28 @@ export function LessonActivity({ lesson }: Props) {
               </button>
             </div>
           </div>
+
+          <div className="count-panel" aria-label={activity.copy.objectsLabel}>
+            <div className="count-objects" aria-label={card.objectsLabel}>
+              {objects.length === 0 ? (
+                <span className="zero-objects" aria-hidden="true" />
+              ) : (
+                objects.map((object) => (
+                  <img
+                    key={object}
+                    className="apple-image"
+                    src="/media/objects/apple.svg"
+                    alt=""
+                    aria-hidden="true"
+                    draggable={false}
+                    width="52"
+                    height="52"
+                  />
+                ))
+              )}
+            </div>
+          </div>
+
         </article>
       </section>
     );
