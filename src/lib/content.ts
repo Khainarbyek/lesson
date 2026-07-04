@@ -59,6 +59,11 @@ export type ActivityCopy = {
   progress: string;
 };
 
+export type LessonImage = {
+  src: string;
+  alt: string;
+};
+
 export type LessonBase = {
   id: LessonId;
   title: string;
@@ -67,6 +72,7 @@ export type LessonBase = {
   ageRange: AgeRangeId;
   status: LessonStatus;
   icon: string;
+  image: LessonImage;
   accent: "berry" | "sky" | "leaf" | "sun";
   route: string;
 };
@@ -176,6 +182,22 @@ const ageRanges: Record<LocaleCode, AgeRange[]> = {
   ]
 };
 
+const lessonImageSources: Record<LessonId, string> = {
+  alphabet: "/media/lessons/alphabet.svg",
+  animals: "/media/lessons/animals.svg",
+  math: "/media/lessons/math.svg",
+  chess: "/media/lessons/chess.svg",
+  typing: "/media/lessons/typing.svg",
+  chemistry: "/media/lessons/chemistry.svg"
+};
+
+function lessonImage(id: LessonId, alt: string): LessonImage {
+  return {
+    src: lessonImageSources[id],
+    alt
+  };
+}
+
 const lessons: Record<LocaleCode, Lesson[]> = {
   en: [
     {
@@ -186,6 +208,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "A",
+      image: lessonImage("alphabet", "Alphabet letter cards for early reading practice"),
       accent: "berry",
       route: localizedPath("en", "/lessons/alphabet"),
       activity: {
@@ -230,6 +253,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "Paw",
+      image: lessonImage("animals", "Simple animal learning cards with a cat and paw print"),
       accent: "leaf",
       route: localizedPath("en", "/lessons/animals"),
       activity: {
@@ -274,6 +298,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "123",
+      image: lessonImage("math", "Counting blocks and numbers for early math practice"),
       accent: "sky",
       route: localizedPath("en", "/lessons/math"),
       soonNote: "We will add counting, addition, and playful number challenges."
@@ -286,6 +311,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "Chess",
+      image: lessonImage("chess", "Chess board and pieces for first move lessons"),
       accent: "sun",
       route: localizedPath("en", "/lessons/chess"),
       soonNote: "We will add board practice for pawns, rooks, bishops, and kings."
@@ -298,6 +324,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Keys",
+      image: lessonImage("typing", "Keyboard keys for computer typing practice"),
       accent: "berry",
       route: localizedPath("en", "/lessons/typing"),
       soonNote: "We will add gentle typing practice and keyboard games."
@@ -310,6 +337,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Lab",
+      image: lessonImage("chemistry", "Safe school chemistry beakers and molecules"),
       accent: "leaf",
       route: localizedPath("en", "/lessons/chemistry"),
       soonNote: "We will add simple science cards and teacher-friendly explanations."
@@ -324,6 +352,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "А",
+      image: lessonImage("alphabet", "Карточки с буквами для первого чтения"),
       accent: "berry",
       route: localizedPath("ru", "/lessons/alphabet"),
       activity: {
@@ -368,6 +397,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "Лапа",
+      image: lessonImage("animals", "Карточки с животными для изучения природы"),
       accent: "leaf",
       route: localizedPath("ru", "/lessons/animals"),
       activity: {
@@ -412,6 +442,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "123",
+      image: lessonImage("math", "Кубики и числа для первых занятий математикой"),
       accent: "sky",
       route: localizedPath("ru", "/lessons/math"),
       soonNote: "Мы добавим счет, сложение и веселые задания с числами."
@@ -424,6 +455,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "Шах",
+      image: lessonImage("chess", "Шахматная доска и фигуры для первых ходов"),
       accent: "sun",
       route: localizedPath("ru", "/lessons/chess"),
       soonNote: "Мы добавим практику с пешками, ладьями, слонами и королем."
@@ -436,6 +468,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Клав",
+      image: lessonImage("typing", "Клавиши клавиатуры для тренировки печати"),
       accent: "berry",
       route: localizedPath("ru", "/lessons/typing"),
       soonNote: "Мы добавим спокойные упражнения и игры с клавиатурой."
@@ -448,6 +481,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Лаб",
+      image: lessonImage("chemistry", "Безопасные школьные колбы и молекулы"),
       accent: "leaf",
       route: localizedPath("ru", "/lessons/chemistry"),
       soonNote: "Мы добавим простые научные карточки и объяснения для учителей."
@@ -462,6 +496,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "Ә",
+      image: lessonImage("alphabet", "Алғашқы оқуға арналған әріп карточкалары"),
       accent: "berry",
       route: localizedPath("kk", "/lessons/alphabet"),
       activity: {
@@ -506,6 +541,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "3-5",
       status: "playable",
       icon: "Із",
+      image: lessonImage("animals", "Табиғатты үйренуге арналған жануар карточкалары"),
       accent: "leaf",
       route: localizedPath("kk", "/lessons/animals"),
       activity: {
@@ -550,6 +586,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "123",
+      image: lessonImage("math", "Алғашқы математикаға арналған сандар мен текшелер"),
       accent: "sky",
       route: localizedPath("kk", "/lessons/math"),
       soonNote: "Біз санау, қосу және қызықты сан тапсырмаларын қосамыз."
@@ -562,6 +599,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "6-8",
       status: "coming-soon",
       icon: "Шах",
+      image: lessonImage("chess", "Алғашқы жүрістерге арналған шахмат тақтасы мен фигуралар"),
       accent: "sun",
       route: localizedPath("kk", "/lessons/chess"),
       soonNote: "Біз пешка, тура, піл және патшаға арналған тақта жаттығуларын қосамыз."
@@ -574,6 +612,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Пер",
+      image: lessonImage("typing", "Теру жаттығуларына арналған пернетақта пернелері"),
       accent: "berry",
       route: localizedPath("kk", "/lessons/typing"),
       soonNote: "Біз жеңіл теру жаттығулары мен пернетақта ойындарын қосамыз."
@@ -586,6 +625,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       ageRange: "9+",
       status: "coming-soon",
       icon: "Зерт",
+      image: lessonImage("chemistry", "Қауіпсіз мектеп химиясына арналған колбалар мен молекулалар"),
       accent: "leaf",
       route: localizedPath("kk", "/lessons/chemistry"),
       soonNote: "Біз қарапайым ғылыми карточкалар мен мұғалімдерге арналған түсіндірмелер қосамыз."

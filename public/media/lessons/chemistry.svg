@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">School chemistry beakers and molecules</title>
+  <rect width="640" height="420" rx="32" fill="#f4fff8"/>
+  <circle cx="108" cy="92" r="44" fill="#ffe08a"/>
+  <circle cx="538" cy="96" r="52" fill="#bfe7ff"/>
+  <path d="M228 92h184" stroke="#172033" stroke-opacity=".18" stroke-width="16" stroke-linecap="round"/>
+  <path d="M260 108v84l-78 124c-12 20 2 46 26 46h224c24 0 38-26 26-46l-78-124v-84z" fill="#ffffff" stroke="#31a66a" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M238 286h164l32 50H206z" fill="#4c9aff" fill-opacity=".36"/>
+  <circle cx="274" cy="260" r="14" fill="#d9487d"/>
+  <circle cx="342" cy="304" r="18" fill="#ffc857"/>
+  <circle cx="386" cy="254" r="12" fill="#31a66a"/>
+  <circle cx="132" cy="258" r="22" fill="#d9487d"/>
+  <circle cx="104" cy="314" r="16" fill="#4c9aff"/>
+  <circle cx="154" cy="328" r="18" fill="#ffc857"/>
+  <path d="M132 258l-28 56m28-56l22 70" stroke="#172033" stroke-opacity=".28" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="520" cy="276" r="24" fill="#31a66a"/>
+  <circle cx="486" cy="328" r="18" fill="#4c9aff"/>
+  <circle cx="552" cy="334" r="16" fill="#d9487d"/>
+  <path d="M520 276l-34 52m34-52l32 58" stroke="#172033" stroke-opacity=".28" stroke-width="7" stroke-linecap="round"/>
+</svg>

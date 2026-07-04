@@ -1,7 +1,7 @@
 export const localeCodes = ["en", "ru", "kk"] as const;
 export type LocaleCode = (typeof localeCodes)[number];
 
-export const defaultLocale: LocaleCode = "en";
+export const defaultLocale: LocaleCode = "kk";
 
 export const localeLabels: Record<LocaleCode, string> = {
   en: "English",
@@ -17,4 +17,3 @@ export function localizedPath(locale: LocaleCode, path = "/") {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `/${locale}${normalizedPath === "/" ? "/" : normalizedPath}`;
 }
-

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">Animal learning cards</title>
+  <rect width="640" height="420" rx="32" fill="#f2fff4"/>
+  <circle cx="512" cy="94" r="52" fill="#ffd96c"/>
+  <path d="M70 344c84-62 150-62 214 0s152 62 286 0" fill="none" stroke="#31a66a" stroke-opacity=".18" stroke-width="30" stroke-linecap="round"/>
+  <rect x="112" y="78" width="416" height="260" rx="34" fill="#ffffff" stroke="#172033" stroke-opacity=".1" stroke-width="6"/>
+  <circle cx="274" cy="196" r="72" fill="#ffcf9c"/>
+  <path d="M218 148l-34-54c-4-6 2-14 9-11l68 30z" fill="#f3a96c"/>
+  <path d="M330 148l34-54c4-6-2-14-9-11l-68 30z" fill="#f3a96c"/>
+  <circle cx="248" cy="194" r="10" fill="#172033"/>
+  <circle cx="300" cy="194" r="10" fill="#172033"/>
+  <path d="M273 212l-14 12h28z" fill="#d9487d"/>
+  <path d="M240 240c24 18 44 18 68 0" fill="none" stroke="#172033" stroke-opacity=".65" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="424" cy="246" r="38" fill="#ffffff" stroke="#4c9aff" stroke-width="12"/>
+  <circle cx="392" cy="190" r="18" fill="#4c9aff"/>
+  <circle cx="430" cy="176" r="18" fill="#4c9aff"/>
+  <circle cx="468" cy="196" r="18" fill="#4c9aff"/>
+  <text x="320" y="372" text-anchor="middle" fill="#172033" fill-opacity=".72" font-family="Nunito, Arial, sans-serif" font-size="36" font-weight="900">CAT</text>
+</svg>

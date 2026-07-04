@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title">
+  <title id="title">Uyren learning for children</title>
+  <rect width="1200" height="630" fill="#fffdf7"/>
+  <circle cx="112" cy="112" r="86" fill="#ffc857" fill-opacity=".72"/>
+  <circle cx="1038" cy="500" r="128" fill="#4c9aff" fill-opacity=".2"/>
+  <circle cx="1040" cy="128" r="92" fill="#31a66a" fill-opacity=".18"/>
+  <text x="96" y="226" fill="#172033" font-family="Nunito, Arial, sans-serif" font-size="92" font-weight="900">Uyren</text>
+  <text x="100" y="316" fill="#172033" fill-opacity=".72" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800">Learn by playing in Kazakh, English, and Russian</text>
+  <g transform="translate(120 390)">
+    <rect width="140" height="140" rx="24" fill="#ffffff" stroke="#172033" stroke-opacity=".1" stroke-width="6"/>
+    <rect x="170" width="140" height="140" rx="24" fill="#ffffff" stroke="#172033" stroke-opacity=".1" stroke-width="6"/>
+    <rect x="340" width="140" height="140" rx="24" fill="#ffffff" stroke="#172033" stroke-opacity=".1" stroke-width="6"/>
+    <text x="70" y="98" text-anchor="middle" fill="#d9487d" font-family="Nunito, Arial, sans-serif" font-size="82" font-weight="900">A</text>
+    <text x="240" y="98" text-anchor="middle" fill="#31a66a" font-family="Nunito, Arial, sans-serif" font-size="82" font-weight="900">123</text>
+    <text x="410" y="98" text-anchor="middle" fill="#4c9aff" font-family="Nunito, Arial, sans-serif" font-size="82" font-weight="900">K</text>
+  </g>
+  <path d="M780 230c56-62 148-62 204 0s56 156 0 218-148 62-204 0-56-156 0-218z" fill="#ffffff" stroke="#172033" stroke-opacity=".1" stroke-width="8"/>
+  <circle cx="850" cy="326" r="18" fill="#172033"/>
+  <circle cx="932" cy="326" r="18" fill="#172033"/>
+  <path d="M870 390c34 24 70 24 104 0" fill="none" stroke="#d9487d" stroke-width="14" stroke-linecap="round"/>
+</svg>

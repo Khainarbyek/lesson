@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">Keyboard typing practice</title>
+  <rect width="640" height="420" rx="32" fill="#fff5fa"/>
+  <circle cx="112" cy="78" r="44" fill="#bfe7ff"/>
+  <circle cx="534" cy="342" r="58" fill="#ffe08a"/>
+  <rect x="98" y="112" width="444" height="220" rx="30" fill="#ffffff" stroke="#172033" stroke-opacity=".12" stroke-width="6"/>
+  <rect x="144" y="156" width="68" height="54" rx="12" fill="#4c9aff"/>
+  <rect x="228" y="156" width="68" height="54" rx="12" fill="#31a66a"/>
+  <rect x="312" y="156" width="68" height="54" rx="12" fill="#d9487d"/>
+  <rect x="396" y="156" width="68" height="54" rx="12" fill="#ffc857"/>
+  <rect x="144" y="228" width="68" height="54" rx="12" fill="#ffc857"/>
+  <rect x="228" y="228" width="152" height="54" rx="12" fill="#172033" fill-opacity=".84"/>
+  <rect x="396" y="228" width="68" height="54" rx="12" fill="#4c9aff"/>
+  <text x="178" y="193" text-anchor="middle" fill="#ffffff" font-family="Nunito, Arial, sans-serif" font-size="28" font-weight="900">A</text>
+  <text x="262" y="193" text-anchor="middle" fill="#ffffff" font-family="Nunito, Arial, sans-serif" font-size="28" font-weight="900">S</text>
+  <text x="346" y="193" text-anchor="middle" fill="#ffffff" font-family="Nunito, Arial, sans-serif" font-size="28" font-weight="900">D</text>
+  <text x="430" y="193" text-anchor="middle" fill="#172033" font-family="Nunito, Arial, sans-serif" font-size="28" font-weight="900">F</text>
+  <path d="M150 354h340" stroke="#172033" stroke-opacity=".14" stroke-width="18" stroke-linecap="round"/>
+</svg>

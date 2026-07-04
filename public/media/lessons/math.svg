@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">Counting blocks and numbers</title>
+  <rect width="640" height="420" rx="32" fill="#eef8ff"/>
+  <circle cx="104" cy="96" r="44" fill="#ffc857"/>
+  <circle cx="548" cy="320" r="62" fill="#d7f7df"/>
+  <rect x="94" y="222" width="116" height="116" rx="20" fill="#ffffff" stroke="#4c9aff" stroke-width="8"/>
+  <rect x="246" y="158" width="116" height="180" rx="20" fill="#ffffff" stroke="#31a66a" stroke-width="8"/>
+  <rect x="398" y="94" width="116" height="244" rx="20" fill="#ffffff" stroke="#d9487d" stroke-width="8"/>
+  <text x="152" y="302" text-anchor="middle" fill="#4c9aff" font-family="Nunito, Arial, sans-serif" font-size="72" font-weight="900">1</text>
+  <text x="304" y="268" text-anchor="middle" fill="#31a66a" font-family="Nunito, Arial, sans-serif" font-size="72" font-weight="900">2</text>
+  <text x="456" y="232" text-anchor="middle" fill="#d9487d" font-family="Nunito, Arial, sans-serif" font-size="72" font-weight="900">3</text>
+  <path d="M152 116h70m-35-35v70" stroke="#172033" stroke-opacity=".62" stroke-width="16" stroke-linecap="round"/>
+  <path d="M410 70h86" stroke="#172033" stroke-opacity=".62" stroke-width="16" stroke-linecap="round"/>
+</svg>

@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { getHomeCopy, getLessonById, getLessons, locales } from "../lib/content";
+import { defaultLocale } from "../lib/locales";
 
 describe("localized content", () => {
   it("supports English, Russian, and Kazakh", () => {
     expect(locales.map((locale) => locale.code)).toEqual(["en", "ru", "kk"]);
+  });
+
+  it("uses Kazakh as the default locale", () => {
+    expect(defaultLocale).toBe("kk");
   });
 
   it("returns homepage copy for each locale", () => {
@@ -30,6 +35,15 @@ describe("localized content", () => {
     const playable = getLessons("en").filter((lesson) => lesson.status === "playable");
 
     expect(playable.map((lesson) => lesson.id)).toEqual(["alphabet", "animals"]);
+  });
+
+  it("defines lesson image metadata for every locale", () => {
+    for (const locale of locales) {
+      for (const lesson of getLessons(locale.code)) {
+        expect(lesson.image.src).toMatch(/^\/media\/lessons\/[a-z-]+\.svg$/);
+        expect(lesson.image.alt.trim().length).toBeGreaterThan(12);
+      }
+    }
   });
 
   it("returns localized lesson detail", () => {
