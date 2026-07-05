@@ -375,4 +375,36 @@ describe("LessonActivity", () => {
 
     expect(screen.getByText("Try tracing more of the number.")).toBeInTheDocument();
   });
+
+  it("asks the learner to try again when a different two-digit number is traced", () => {
+    const lesson = getNumberRangeLesson("en", "51-60");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 51-60 math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    mockTraceCanvas(canvas);
+
+    drawTouchStroke(canvas, [
+      { x: 188, y: 60 },
+      { x: 150, y: 92 },
+      { x: 150, y: 130 },
+      { x: 150, y: 168 },
+      { x: 188, y: 205 },
+      { x: 228, y: 168 }
+    ]);
+    drawTouchStroke(canvas, [
+      { x: 332, y: 60 },
+      { x: 372, y: 92 },
+      { x: 332, y: 130 },
+      { x: 292, y: 168 },
+      { x: 332, y: 205 }
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
+
+    expect(screen.getByLabelText("51 fifty one")).toBeInTheDocument();
+    expect(screen.getByText("Try tracing more of the number.")).toBeInTheDocument();
+  });
 });
