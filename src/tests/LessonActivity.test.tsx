@@ -266,4 +266,24 @@ describe("LessonActivity", () => {
     expect(context.clearRect).toHaveBeenCalledWith(0, 0, 520, 260);
     expect(context.lineTo).toHaveBeenLastCalledWith(360, 170);
   });
+
+  it("registers native non-passive touch listeners for iOS drawing", () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    const addEventListenerSpy = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
+
+    try {
+      render(<LessonActivity lesson={lesson} />);
+
+      expect(addEventListenerSpy).toHaveBeenCalledWith("touchstart", expect.any(Function), { passive: false });
+      expect(addEventListenerSpy).toHaveBeenCalledWith("touchmove", expect.any(Function), { passive: false });
+      expect(addEventListenerSpy).toHaveBeenCalledWith("touchend", expect.any(Function), { passive: false });
+      expect(addEventListenerSpy).toHaveBeenCalledWith("touchcancel", expect.any(Function), { passive: false });
+    } finally {
+      addEventListenerSpy.mockRestore();
+    }
+  });
 });

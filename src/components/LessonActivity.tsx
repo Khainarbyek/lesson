@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
 import type { PlayableLesson } from "../lib/content";
 import { getLessonProgress, saveLessonProgress, type LessonProgress } from "../lib/progress";
@@ -10,7 +10,6 @@ type Props = {
 type Feedback = "correct" | "incorrect" | null;
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
 type CanvasMouseEvent = MouseEvent<HTMLCanvasElement>;
-type CanvasTouchEvent = TouchEvent<HTMLCanvasElement>;
 type CanvasPoint = {
   x: number;
   y: number;
@@ -39,14 +38,14 @@ function getCanvasPoint(event: CanvasPointerEvent | CanvasMouseEvent) {
   return getCanvasPointFromClient(event.currentTarget, event.clientX, event.clientY);
 }
 
-function getTouchCanvasPoint(event: CanvasTouchEvent) {
+function getTouchCanvasPoint(canvas: HTMLCanvasElement, event: TouchEvent) {
   const touch = event.touches[0] ?? event.changedTouches[0];
 
   if (!touch) {
     return null;
   }
 
-  return getCanvasPointFromClient(event.currentTarget, touch.clientX, touch.clientY);
+  return getCanvasPointFromClient(canvas, touch.clientX, touch.clientY);
 }
 
 function supportsPointerEvents() {
@@ -85,6 +84,33 @@ function releasePointer(canvas: HTMLCanvasElement, pointerId: number) {
   }
 }
 
+function beginCanvasDrawing(canvas: HTMLCanvasElement, point: CanvasPoint) {
+  const context = getCanvasContext(canvas);
+
+  if (!context) {
+    return;
+  }
+
+  context.strokeStyle = "#245985";
+  context.lineWidth = 20;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.beginPath();
+  context.moveTo(point.x, point.y);
+  context.lineTo(point.x + 0.1, point.y + 0.1);
+  context.stroke();
+}
+
+function drawCanvasPoint(canvas: HTMLCanvasElement, point: CanvasPoint) {
+  const context = getCanvasContext(canvas);
+  if (!context) {
+    return;
+  }
+
+  context.lineTo(point.x, point.y);
+  context.stroke();
+}
+
 export function LessonActivity({ lesson }: Props) {
   const [promptIndex, setPromptIndex] = useState(0);
   const [cardIndex, setCardIndex] = useState(0);
@@ -96,6 +122,68 @@ export function LessonActivity({ lesson }: Props) {
     () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
     [lesson.activity.copy.progress, progress.attempts, progress.correct]
   );
+
+  useEffect(() => {
+    if (lesson.activity.type !== "number-flashcards") {
+      return;
+    }
+
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) {
+      return;
+    }
+    const touchCanvas = canvas;
+
+    const touchListenerOptions: AddEventListenerOptions = { passive: false };
+
+    function preventNativeTouchGesture(event: TouchEvent) {
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+    }
+
+    function startNativeTouchDrawing(event: TouchEvent) {
+      preventNativeTouchGesture(event);
+      const point = getTouchCanvasPoint(touchCanvas, event);
+      if (!point) {
+        return;
+      }
+
+      drawingActiveRef.current = true;
+      beginCanvasDrawing(touchCanvas, point);
+    }
+
+    function continueNativeTouchDrawing(event: TouchEvent) {
+      preventNativeTouchGesture(event);
+      if (!drawingActiveRef.current) {
+        return;
+      }
+
+      const point = getTouchCanvasPoint(touchCanvas, event);
+      if (!point) {
+        return;
+      }
+
+      drawCanvasPoint(touchCanvas, point);
+    }
+
+    function stopNativeTouchDrawing(event: TouchEvent) {
+      preventNativeTouchGesture(event);
+      drawingActiveRef.current = false;
+    }
+
+    touchCanvas.addEventListener("touchstart", startNativeTouchDrawing, touchListenerOptions);
+    touchCanvas.addEventListener("touchmove", continueNativeTouchDrawing, touchListenerOptions);
+    touchCanvas.addEventListener("touchend", stopNativeTouchDrawing, touchListenerOptions);
+    touchCanvas.addEventListener("touchcancel", stopNativeTouchDrawing, touchListenerOptions);
+
+    return () => {
+      touchCanvas.removeEventListener("touchstart", startNativeTouchDrawing, touchListenerOptions);
+      touchCanvas.removeEventListener("touchmove", continueNativeTouchDrawing, touchListenerOptions);
+      touchCanvas.removeEventListener("touchend", stopNativeTouchDrawing, touchListenerOptions);
+      touchCanvas.removeEventListener("touchcancel", stopNativeTouchDrawing, touchListenerOptions);
+    };
+  }, [cardIndex, lesson.activity.type]);
 
   if (lesson.activity.type === "number-flashcards") {
     const activity = lesson.activity;
@@ -136,35 +224,12 @@ export function LessonActivity({ lesson }: Props) {
       setCardIndex((current) => Math.min(activity.cards.length - 1, current + 1));
     }
 
-    function beginDrawing(canvas: HTMLCanvasElement, point: CanvasPoint) {
-      const context = getCanvasContext(canvas);
-
-      if (!context) {
-        return;
-      }
-
-      context.strokeStyle = "#245985";
-      context.lineWidth = 20;
-      context.lineCap = "round";
-      context.lineJoin = "round";
-      context.beginPath();
-      context.moveTo(point.x, point.y);
-      context.lineTo(point.x + 0.1, point.y + 0.1);
-      context.stroke();
-    }
-
     function drawToPoint(canvas: HTMLCanvasElement, point: CanvasPoint) {
       if (!drawingActiveRef.current) {
         return;
       }
 
-      const context = getCanvasContext(canvas);
-      if (!context) {
-        return;
-      }
-
-      context.lineTo(point.x, point.y);
-      context.stroke();
+      drawCanvasPoint(canvas, point);
     }
 
     function startDrawing(event: CanvasPointerEvent) {
@@ -177,7 +242,7 @@ export function LessonActivity({ lesson }: Props) {
 
       drawingActiveRef.current = true;
       capturePointer(canvas, event.pointerId);
-      beginDrawing(canvas, point);
+      beginCanvasDrawing(canvas, point);
     }
 
     function continueDrawing(event: CanvasPointerEvent) {
@@ -197,43 +262,13 @@ export function LessonActivity({ lesson }: Props) {
       releasePointer(event.currentTarget, event.pointerId);
     }
 
-    function startTouchDrawing(event: CanvasTouchEvent) {
-      const point = getTouchCanvasPoint(event);
-      if (!point) {
-        return;
-      }
-
-      event.preventDefault();
-      drawingActiveRef.current = true;
-      beginDrawing(event.currentTarget, point);
-    }
-
-    function continueTouchDrawing(event: CanvasTouchEvent) {
-      if (!drawingActiveRef.current) {
-        return;
-      }
-
-      const point = getTouchCanvasPoint(event);
-      if (!point) {
-        return;
-      }
-
-      event.preventDefault();
-      drawToPoint(event.currentTarget, point);
-    }
-
-    function stopTouchDrawing(event: CanvasTouchEvent) {
-      event.preventDefault();
-      drawingActiveRef.current = false;
-    }
-
     function startMouseDrawing(event: CanvasMouseEvent) {
       if (supportsPointerEvents() || event.button !== 0) {
         return;
       }
 
       drawingActiveRef.current = true;
-      beginDrawing(event.currentTarget, getCanvasPoint(event));
+      beginCanvasDrawing(event.currentTarget, getCanvasPoint(event));
     }
 
     function continueMouseDrawing(event: CanvasMouseEvent) {
@@ -314,10 +349,6 @@ export function LessonActivity({ lesson }: Props) {
                 onPointerUp={stopDrawing}
                 onPointerCancel={stopDrawing}
                 onPointerLeave={stopDrawing}
-                onTouchStart={startTouchDrawing}
-                onTouchMove={continueTouchDrawing}
-                onTouchEnd={stopTouchDrawing}
-                onTouchCancel={stopTouchDrawing}
                 onMouseDown={startMouseDrawing}
                 onMouseMove={continueMouseDrawing}
                 onMouseUp={stopMouseDrawing}
