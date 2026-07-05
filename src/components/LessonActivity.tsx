@@ -53,6 +53,10 @@ function supportsPointerEvents() {
   return typeof window !== "undefined" && typeof window.PointerEvent === "function";
 }
 
+function isTouchPointer(event: CanvasPointerEvent) {
+  return event.pointerType === "touch";
+}
+
 function capturePointer(canvas: HTMLCanvasElement, pointerId: number) {
   if (typeof canvas.setPointerCapture !== "function") {
     return;
@@ -164,6 +168,10 @@ export function LessonActivity({ lesson }: Props) {
     }
 
     function startDrawing(event: CanvasPointerEvent) {
+      if (isTouchPointer(event)) {
+        return;
+      }
+
       const canvas = event.currentTarget;
       const point = getCanvasPoint(event);
 
@@ -173,19 +181,23 @@ export function LessonActivity({ lesson }: Props) {
     }
 
     function continueDrawing(event: CanvasPointerEvent) {
+      if (isTouchPointer(event)) {
+        return;
+      }
+
       drawToPoint(event.currentTarget, getCanvasPoint(event));
     }
 
     function stopDrawing(event: CanvasPointerEvent) {
+      if (isTouchPointer(event)) {
+        return;
+      }
+
       drawingActiveRef.current = false;
       releasePointer(event.currentTarget, event.pointerId);
     }
 
     function startTouchDrawing(event: CanvasTouchEvent) {
-      if (supportsPointerEvents()) {
-        return;
-      }
-
       const point = getTouchCanvasPoint(event);
       if (!point) {
         return;
@@ -197,7 +209,7 @@ export function LessonActivity({ lesson }: Props) {
     }
 
     function continueTouchDrawing(event: CanvasTouchEvent) {
-      if (supportsPointerEvents() || !drawingActiveRef.current) {
+      if (!drawingActiveRef.current) {
         return;
       }
 
@@ -211,10 +223,6 @@ export function LessonActivity({ lesson }: Props) {
     }
 
     function stopTouchDrawing(event: CanvasTouchEvent) {
-      if (supportsPointerEvents()) {
-        return;
-      }
-
       event.preventDefault();
       drawingActiveRef.current = false;
     }
@@ -246,6 +254,8 @@ export function LessonActivity({ lesson }: Props) {
 
     function clearDrawing() {
       const canvas = drawingCanvasRef.current;
+      drawingActiveRef.current = false;
+
       if (!canvas) {
         return;
       }

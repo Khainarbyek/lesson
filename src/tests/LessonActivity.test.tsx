@@ -219,4 +219,51 @@ describe("LessonActivity", () => {
       });
     }
   });
+
+  it("keeps finger drawing active on multi-digit cards after clearing", () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    const context = {
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      clearRect: vi.fn()
+    };
+
+    vi.spyOn(canvas, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      width: 260,
+      height: 130,
+      left: 10,
+      top: 20,
+      right: 270,
+      bottom: 150,
+      x: 10,
+      y: 20,
+      toJSON: () => ({})
+    });
+
+    fireEvent.touchStart(canvas, { touches: [{ clientX: 35, clientY: 45 }] });
+    fireEvent.touchMove(canvas, { touches: [{ clientX: 85, clientY: 95 }] });
+    fireEvent.touchEnd(canvas);
+    fireEvent.touchStart(canvas, { touches: [{ clientX: 150, clientY: 45 }] });
+    fireEvent.touchMove(canvas, { touches: [{ clientX: 150, clientY: 105 }] });
+    fireEvent.touchEnd(canvas);
+    fireEvent.click(screen.getByRole("button", { name: lesson.activity.copy.clearDrawing }));
+    fireEvent.touchStart(canvas, { touches: [{ clientX: 190, clientY: 45 }] });
+    fireEvent.touchMove(canvas, { touches: [{ clientX: 190, clientY: 105 }] });
+    fireEvent.touchEnd(canvas);
+
+    expect(screen.getByLabelText("21 twenty one")).toBeInTheDocument();
+    expect(context.beginPath).toHaveBeenCalledTimes(3);
+    expect(context.clearRect).toHaveBeenCalledWith(0, 0, 520, 260);
+    expect(context.lineTo).toHaveBeenLastCalledWith(360, 170);
+  });
 });
