@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
-import { ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
 import type { PlayableLesson } from "../lib/content";
+import { scoreNumberTrace, type TraceStroke } from "../lib/numberTrace";
 import { getLessonProgress, saveLessonProgress, type LessonProgress } from "../lib/progress";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 };
 
 type Feedback = "correct" | "incorrect" | null;
+type TraceFeedback = "success" | "retry" | null;
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
 type CanvasMouseEvent = MouseEvent<HTMLCanvasElement>;
 type CanvasPoint = {
@@ -115,13 +117,41 @@ export function LessonActivity({ lesson }: Props) {
   const [promptIndex, setPromptIndex] = useState(0);
   const [cardIndex, setCardIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [traceFeedback, setTraceFeedback] = useState<TraceFeedback>(null);
   const [progress, setProgress] = useState<LessonProgress>(() => getLessonProgress(lesson.id));
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingActiveRef = useRef(false);
+  const drawingStrokesRef = useRef<TraceStroke[]>([]);
   const progressText = useMemo(
     () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
     [lesson.activity.copy.progress, progress.attempts, progress.correct]
   );
+
+  function resetTraceState() {
+    drawingActiveRef.current = false;
+    drawingStrokesRef.current = [];
+    setTraceFeedback(null);
+  }
+
+  function rememberStrokeStart(point: CanvasPoint) {
+    drawingStrokesRef.current.push([point]);
+    setTraceFeedback(null);
+  }
+
+  function rememberStrokePoint(point: CanvasPoint) {
+    const currentStroke = drawingStrokesRef.current[drawingStrokesRef.current.length - 1];
+
+    if (!currentStroke) {
+      rememberStrokeStart(point);
+      return;
+    }
+
+    currentStroke.push(point);
+  }
+
+  useEffect(() => {
+    resetTraceState();
+  }, [cardIndex, lesson.id]);
 
   useEffect(() => {
     if (lesson.activity.type !== "number-flashcards") {
@@ -150,6 +180,7 @@ export function LessonActivity({ lesson }: Props) {
       }
 
       drawingActiveRef.current = true;
+      rememberStrokeStart(point);
       beginCanvasDrawing(touchCanvas, point);
     }
 
@@ -164,6 +195,7 @@ export function LessonActivity({ lesson }: Props) {
         return;
       }
 
+      rememberStrokePoint(point);
       drawCanvasPoint(touchCanvas, point);
     }
 
@@ -229,6 +261,7 @@ export function LessonActivity({ lesson }: Props) {
         return;
       }
 
+      rememberStrokePoint(point);
       drawCanvasPoint(canvas, point);
     }
 
@@ -242,6 +275,7 @@ export function LessonActivity({ lesson }: Props) {
 
       drawingActiveRef.current = true;
       capturePointer(canvas, event.pointerId);
+      rememberStrokeStart(point);
       beginCanvasDrawing(canvas, point);
     }
 
@@ -267,8 +301,10 @@ export function LessonActivity({ lesson }: Props) {
         return;
       }
 
+      const point = getCanvasPoint(event);
       drawingActiveRef.current = true;
-      beginCanvasDrawing(event.currentTarget, getCanvasPoint(event));
+      rememberStrokeStart(point);
+      beginCanvasDrawing(event.currentTarget, point);
     }
 
     function continueMouseDrawing(event: CanvasMouseEvent) {
@@ -289,7 +325,7 @@ export function LessonActivity({ lesson }: Props) {
 
     function clearDrawing() {
       const canvas = drawingCanvasRef.current;
-      drawingActiveRef.current = false;
+      resetTraceState();
 
       if (!canvas) {
         return;
@@ -297,6 +333,13 @@ export function LessonActivity({ lesson }: Props) {
 
       const context = getCanvasContext(canvas);
       context?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function checkDrawing() {
+      const canvas = drawingCanvasRef.current;
+      const result = scoreNumberTrace(card.value, drawingStrokesRef.current, canvas?.width ?? 520, canvas?.height ?? 260);
+
+      setTraceFeedback(result.passed ? "success" : "retry");
     }
 
     return (
@@ -354,10 +397,20 @@ export function LessonActivity({ lesson }: Props) {
                 onMouseUp={stopMouseDrawing}
                 onMouseLeave={stopMouseDrawing}
               />
-              <button className="icon-button drawing-clear-button" type="button" onClick={clearDrawing} aria-label={activity.copy.clearDrawing}>
-                <RotateCcw aria-hidden="true" focusable="false" strokeWidth={2.4} />
-              </button>
+              <div className="drawing-actions">
+                <button className="icon-button drawing-check-button" type="button" onClick={checkDrawing} aria-label={activity.copy.checkDrawing}>
+                  <Check aria-hidden="true" focusable="false" strokeWidth={2.4} />
+                </button>
+                <button className="icon-button drawing-clear-button" type="button" onClick={clearDrawing} aria-label={activity.copy.clearDrawing}>
+                  <RotateCcw aria-hidden="true" focusable="false" strokeWidth={2.4} />
+                </button>
+              </div>
             </div>
+            {traceFeedback && (
+              <p className={`trace-feedback ${traceFeedback}`} aria-live="polite">
+                {traceFeedback === "success" ? activity.copy.traceSuccess : activity.copy.traceRetry}
+              </p>
+            )}
           </div>
 
           <div className="count-panel" aria-label={activity.copy.objectsLabel}>

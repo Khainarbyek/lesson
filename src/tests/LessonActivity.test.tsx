@@ -19,6 +19,47 @@ const speechSynthesisMock = {
   speak: vi.fn()
 };
 
+function mockTraceCanvas(canvas: HTMLCanvasElement) {
+  const context = {
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    stroke: vi.fn(),
+    clearRect: vi.fn()
+  };
+
+  vi.spyOn(canvas, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
+  vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+    width: 260,
+    height: 130,
+    left: 10,
+    top: 20,
+    right: 270,
+    bottom: 150,
+    x: 10,
+    y: 20,
+    toJSON: () => ({})
+  });
+
+  return context;
+}
+
+function drawTouchStroke(canvas: HTMLCanvasElement, points: Array<{ x: number; y: number }>) {
+  const toClientPoint = (point: { x: number; y: number }) => ({
+    clientX: point.x / 2 + 10,
+    clientY: point.y / 2 + 20
+  });
+
+  const [startPoint, ...movePoints] = points;
+  fireEvent.touchStart(canvas, { touches: [toClientPoint(startPoint)] });
+
+  for (const point of movePoints) {
+    fireEvent.touchMove(canvas, { touches: [toClientPoint(point)] });
+  }
+
+  fireEvent.touchEnd(canvas);
+}
+
 beforeEach(() => {
   speechSynthesisMock.cancel.mockClear();
   speechSynthesisMock.speak.mockClear();
@@ -285,5 +326,53 @@ describe("LessonActivity", () => {
     } finally {
       addEventListenerSpy.mockRestore();
     }
+  });
+
+  it("shows success when the traced number covers every digit", () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    mockTraceCanvas(canvas);
+
+    drawTouchStroke(canvas, [
+      { x: 150, y: 60 },
+      { x: 225, y: 60 },
+      { x: 230, y: 100 },
+      { x: 190, y: 130 },
+      { x: 150, y: 200 },
+      { x: 225, y: 205 }
+    ]);
+    drawTouchStroke(canvas, [
+      { x: 350, y: 60 },
+      { x: 350, y: 205 }
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
+
+    expect(screen.getByText("Great tracing!")).toBeInTheDocument();
+  });
+
+  it("asks the learner to try again when only one digit is traced", () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    mockTraceCanvas(canvas);
+
+    drawTouchStroke(canvas, [
+      { x: 350, y: 60 },
+      { x: 350, y: 205 }
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
+
+    expect(screen.getByText("Try tracing more of the number.")).toBeInTheDocument();
   });
 });

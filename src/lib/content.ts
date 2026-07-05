@@ -103,7 +103,10 @@ export type NumberFlashcardCopy = {
   listen: string;
   next: string;
   previous: string;
+  checkDrawing: string;
   clearDrawing: string;
+  traceSuccess: string;
+  traceRetry: string;
   writePrompt: string;
   objectsLabel: string;
   progress: string;
@@ -379,7 +382,10 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     listen: "Listen",
     next: "Next number",
     previous: "Previous number",
+    checkDrawing: "Check drawing",
     clearDrawing: "Clear drawing",
+    traceSuccess: "Great tracing!",
+    traceRetry: "Try tracing more of the number.",
     writePrompt: "Write this number on paper, then trace it with your finger.",
     objectsLabel: "Count together",
     progress: "number card",
@@ -390,7 +396,10 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     listen: "Слушать",
     next: "Следующее число",
     previous: "Предыдущее число",
+    checkDrawing: "Проверить рисунок",
     clearDrawing: "Очистить рисунок",
+    traceSuccess: "Отлично обвел!",
+    traceRetry: "Попробуй обвести число еще.",
     writePrompt: "Напиши это число на бумаге, затем обведи его пальцем.",
     objectsLabel: "Считаем вместе",
     progress: "карточка с числом",
@@ -401,7 +410,10 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     listen: "Тыңдау",
     next: "Келесі сан",
     previous: "Алдыңғы сан",
+    checkDrawing: "Сызуды тексеру",
     clearDrawing: "Сызуды тазалау",
+    traceSuccess: "Жақсы сыздың!",
+    traceRetry: "Санды тағы толық сыз.",
     writePrompt: "Бұл санды қағазға жаз, кейін саусағыңмен қайталап сыз.",
     objectsLabel: "Бірге санайық",
     progress: "сан карточкасы",

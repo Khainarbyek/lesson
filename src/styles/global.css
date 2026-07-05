@@ -411,16 +411,48 @@ a {
   user-select: none;
 }
 
-.drawing-clear-button {
+.drawing-actions {
   position: absolute;
   right: 8px;
   bottom: 8px;
   z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.drawing-actions .icon-button {
   width: 40px;
   height: 40px;
+}
+
+.drawing-check-button {
+  background: rgba(49, 166, 106, 0.96);
+}
+
+.drawing-clear-button {
   background: rgba(255, 255, 255, 0.92);
   color: var(--color-ink);
   box-shadow: 0 8px 18px rgba(23, 32, 51, 0.12);
+}
+
+.trace-feedback {
+  min-height: 34px;
+  margin: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-weight: 1000;
+  text-align: center;
+}
+
+.trace-feedback.success {
+  background: rgba(49, 166, 106, 0.16);
+  color: #14673d;
+}
+
+.trace-feedback.retry {
+  background: rgba(255, 200, 87, 0.24);
+  color: #775400;
 }
 
 @media (prefers-reduced-motion: reduce) {
