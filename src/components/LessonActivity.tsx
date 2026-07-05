@@ -124,10 +124,17 @@ export function LessonActivity({ lesson }: Props) {
   const drawingActiveRef = useRef(false);
   const drawingStrokesRef = useRef<TraceStroke[]>([]);
   const traceCheckIdRef = useRef(0);
-  const numberTraceOcrConfig = useMemo(
-    () => (lesson.activity.type === "number-flashcards" ? getTraceOcrConfig({ kind: "number" }) : null),
-    [lesson.activity.type]
-  );
+  const traceOcrConfig = useMemo(() => {
+    if (lesson.activity.type === "number-flashcards") {
+      return getTraceOcrConfig({ kind: "number" });
+    }
+
+    if (lesson.activity.type === "letter-flashcards") {
+      return getTraceOcrConfig({ kind: "letter", locale: lesson.activity.locale });
+    }
+
+    return null;
+  }, [lesson.activity]);
   const progressText = useMemo(
     () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
     [lesson.activity.copy.progress, progress.attempts, progress.correct]
@@ -161,17 +168,17 @@ export function LessonActivity({ lesson }: Props) {
   }, [cardIndex, lesson.id]);
 
   useEffect(() => {
-    if (!numberTraceOcrConfig) {
+    if (!traceOcrConfig) {
       return;
     }
 
-    void warmUpOcrWorker(numberTraceOcrConfig).catch(() => {
+    void warmUpOcrWorker(traceOcrConfig).catch(() => {
       // Checking still works later if the user retries and the worker loads successfully.
     });
-  }, [numberTraceOcrConfig]);
+  }, [traceOcrConfig]);
 
   useEffect(() => {
-    if (lesson.activity.type !== "number-flashcards") {
+    if (lesson.activity.type !== "number-flashcards" && lesson.activity.type !== "letter-flashcards") {
       return;
     }
 
@@ -234,11 +241,24 @@ export function LessonActivity({ lesson }: Props) {
     };
   }, [cardIndex, lesson.activity.type]);
 
-  if (lesson.activity.type === "number-flashcards") {
+  if (lesson.activity.type === "number-flashcards" || lesson.activity.type === "letter-flashcards") {
     const activity = lesson.activity;
-    const card = activity.cards[cardIndex];
+    const numberActivity = activity.type === "number-flashcards" ? activity : null;
+    const letterActivity = activity.type === "letter-flashcards" ? activity : null;
+    const numberCard = numberActivity?.cards[cardIndex] ?? null;
+    const letterCard = letterActivity?.cards[cardIndex] ?? null;
+    const card = numberCard ?? letterCard;
+    if (!card) {
+      return null;
+    }
+
+    const activeCard = card;
+    const isLetterActivity = letterActivity !== null;
+    const cardValue = String(activeCard.value);
+    const cardLabel = letterCard?.name ?? numberCard?.word ?? "";
+    const letterObject = letterCard?.object ?? null;
     const cardProgressText = `${cardIndex + 1}/${activity.cards.length}`;
-    const objects = Array.from({ length: card.value }, (_, index) => index);
+    const objects = numberCard ? Array.from({ length: numberCard.value }, (_, index) => index) : [];
     const hasPreviousCard = cardIndex > 0;
     const hasNextCard = cardIndex < activity.cards.length - 1;
 
@@ -256,7 +276,7 @@ export function LessonActivity({ lesson }: Props) {
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(card.speechText);
+      const utterance = new SpeechSynthesisUtterance(activeCard.speechText);
       const voice = findSpeechVoice();
       utterance.lang = voice?.lang ?? activity.copy.speechLocale;
       utterance.voice = voice ?? null;
@@ -354,7 +374,7 @@ export function LessonActivity({ lesson }: Props) {
 
     async function checkDrawing() {
       const canvas = drawingCanvasRef.current;
-      if (!canvas || !numberTraceOcrConfig) {
+      if (!canvas || !traceOcrConfig) {
         return;
       }
 
@@ -363,7 +383,7 @@ export function LessonActivity({ lesson }: Props) {
       setTraceFeedback("checking");
 
       try {
-        const result = await scoreTraceByOCR(canvas, String(card.value), numberTraceOcrConfig);
+        const result = await scoreTraceByOCR(canvas, cardValue, traceOcrConfig);
 
         if (traceCheckIdRef.current !== checkId) {
           return;
@@ -405,20 +425,32 @@ export function LessonActivity({ lesson }: Props) {
           </div>
         </div>
 
-        <article className="number-card" aria-label={`${card.value} ${card.word}`}>
-          <div className="number-main">
-            <span className="number-value">{card.value}</span>
-            <span className="number-word">{card.word}</span>
+        <article className={`number-card ${isLetterActivity ? "letter-card" : ""}`} aria-label={`${cardValue} ${cardLabel}`}>
+          <div className={`number-main ${isLetterActivity ? "letter-main" : ""}`}>
+            <span className={`number-value ${isLetterActivity ? "letter-value" : ""}`}>{cardValue}</span>
+            <span className={`number-word ${isLetterActivity ? "letter-name" : ""}`}>{cardLabel}</span>
+            {letterObject && (
+              <div className="letter-object" aria-label={letterObject.label}>
+                {letterObject.imageSrc ? (
+                  <img className="letter-object-image" src={letterObject.imageSrc} alt="" aria-hidden="true" width="58" height="58" />
+                ) : (
+                  <span className="letter-object-glyph" aria-hidden="true">
+                    {letterObject.glyph}
+                  </span>
+                )}
+                <span className="letter-object-label">{letterObject.label}</span>
+              </div>
+            )}
           </div>
 
           <div className="writing-panel">
             <p className="sr-only">{activity.copy.writePrompt}</p>
             <div className="trace-board">
               <span className="trace-number" aria-hidden="true">
-                {card.value}
+                {cardValue}
               </span>
               <canvas
-                key={card.value}
+                key={cardValue}
                 ref={drawingCanvasRef}
                 className="trace-canvas"
                 aria-label={activity.copy.writePrompt}
@@ -461,26 +493,28 @@ export function LessonActivity({ lesson }: Props) {
             )}
           </div>
 
-          <div className="count-panel" aria-label={activity.copy.objectsLabel}>
-            <div className="count-objects" aria-label={card.objectsLabel}>
-              {objects.length === 0 ? (
-                <span className="zero-objects" aria-hidden="true" />
-              ) : (
-                objects.map((object) => (
-                  <img
-                    key={object}
-                    className="apple-image"
-                    src="/media/objects/apple.svg"
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    width="52"
-                    height="52"
-                  />
-                ))
-              )}
+          {numberActivity && numberCard && (
+            <div className="count-panel" aria-label={numberActivity.copy.objectsLabel}>
+              <div className="count-objects" aria-label={numberCard.objectsLabel}>
+                {objects.length === 0 ? (
+                  <span className="zero-objects" aria-hidden="true" />
+                ) : (
+                  objects.map((object) => (
+                    <img
+                      key={object}
+                      className="apple-image"
+                      src="/media/objects/apple.svg"
+                      alt=""
+                      aria-hidden="true"
+                      draggable={false}
+                      width="52"
+                      height="52"
+                    />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
         </article>
       </section>

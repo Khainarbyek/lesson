@@ -12,8 +12,18 @@ const digitOcrConfig: TraceOcrConfig = {
   minConfidence: 45
 };
 
+const englishLetterOcrConfig: TraceOcrConfig = {
+  languages: ["eng"],
+  whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  pageSegMode: "single_char",
+  minConfidence: 50,
+  locale: "en"
+};
+
 vi.mock("../lib/ocrTrace", () => ({
-  getTraceOcrConfig: vi.fn(() => digitOcrConfig),
+  getTraceOcrConfig: vi.fn((target: { kind: "number" } | { kind: "letter"; locale: string }) =>
+    target.kind === "letter" ? englishLetterOcrConfig : digitOcrConfig
+  ),
   scoreTraceByOCR: vi.fn(),
   warmUpOcrWorker: vi.fn(() => Promise.resolve())
 }));
@@ -100,14 +110,14 @@ afterEach(() => {
 });
 
 describe("LessonActivity", () => {
-  it("shows success feedback for a correct answer", () => {
-    const lesson = getLessonById("en", "alphabet");
+  it("shows success feedback for a correct choice answer", () => {
+    const lesson = getLessonById("en", "animals");
     if (!lesson || lesson.status !== "playable") {
-      throw new Error("Missing alphabet lesson");
+      throw new Error("Missing animals lesson");
     }
 
     render(<LessonActivity lesson={lesson} />);
-    fireEvent.click(screen.getByRole("button", { name: /A/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Cat/i }));
 
     expect(screen.getByText(/Great job/i)).toBeInTheDocument();
   });
@@ -136,6 +146,66 @@ describe("LessonActivity", () => {
     expect(screen.getByLabelText("0 zero")).toHaveTextContent("0");
     expect(screen.getByLabelText("0 zero")).toHaveTextContent("zero");
     expect(screen.getByRole("button", { name: /Listen/i })).toBeInTheDocument();
+  });
+
+  it("renders letter flashcards for the alphabet lesson without math counting", () => {
+    const lesson = getLessonById("en", "alphabet");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "letter-flashcards") {
+      throw new Error("Missing alphabet lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(screen.getByRole("heading", { name: /Alphabet Garden/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("A letter A")).toHaveTextContent("A");
+    expect(screen.getByLabelText("A letter A")).toHaveTextContent("letter A");
+    expect(screen.getByLabelText("apple")).toHaveTextContent("apple");
+    expect(screen.getByAltText("")).toHaveAttribute("src", "/media/objects/apple.svg");
+    expect(screen.getByRole("button", { name: /Listen/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Count together/i)).not.toBeInTheDocument();
+  });
+
+  it("warms up letter OCR for alphabet flashcards", () => {
+    const lesson = getLessonById("en", "alphabet");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "letter-flashcards") {
+      throw new Error("Missing alphabet lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(getTraceOcrConfigMock).toHaveBeenCalledWith({ kind: "letter", locale: "en" });
+    expect(warmUpOcrWorkerMock).toHaveBeenCalledWith(englishLetterOcrConfig);
+  });
+
+  it("checks alphabet drawings against the current letter", async () => {
+    const lesson = getLessonById("en", "alphabet");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "letter-flashcards") {
+      throw new Error("Missing alphabet lesson");
+    }
+
+    scoreTraceByOCRMock.mockResolvedValueOnce({ passed: true, recognizedText: "A", confidence: 90 });
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    mockTraceCanvas(canvas);
+
+    drawTouchStroke(canvas, [
+      { x: 260, y: 60 },
+      { x: 190, y: 205 }
+    ]);
+    drawTouchStroke(canvas, [
+      { x: 260, y: 60 },
+      { x: 330, y: 205 }
+    ]);
+    drawTouchStroke(canvas, [
+      { x: 220, y: 135 },
+      { x: 300, y: 135 }
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
+
+    expect(await screen.findByText("Great letter tracing!")).toBeInTheDocument();
+    expect(scoreTraceByOCRMock).toHaveBeenCalledWith(canvas, "A", englishLetterOcrConfig);
   });
 
   it("uses compact icon controls for number flashcards", () => {

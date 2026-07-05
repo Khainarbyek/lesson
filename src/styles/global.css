@@ -328,6 +328,53 @@ a {
   line-height: 1.1;
 }
 
+.letter-main {
+  background:
+    linear-gradient(135deg, rgba(216, 63, 125, 0.14), rgba(122, 204, 147, 0.22)),
+    #fffaf0;
+}
+
+.letter-value {
+  color: var(--color-berry);
+  font-size: clamp(7rem, 34vw, 13rem);
+}
+
+.letter-name {
+  color: rgba(23, 32, 51, 0.7);
+}
+
+.letter-object {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 8px 12px;
+  color: rgba(23, 32, 51, 0.78);
+  font-size: clamp(1.1rem, 4vw, 1.45rem);
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.letter-object-image,
+.letter-object-glyph {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+}
+
+.letter-object-image {
+  object-fit: contain;
+  filter: drop-shadow(0 6px 8px rgba(116, 27, 37, 0.14));
+}
+
+.letter-object-glyph {
+  font-size: 2.35rem;
+}
+
 .listen-button {
   background: var(--color-berry);
 }
@@ -504,6 +551,10 @@ a {
     align-items: stretch;
     gap: 14px;
     padding: 14px;
+  }
+
+  .letter-card {
+    grid-template-areas: "number write";
   }
 
   .number-main {

@@ -48,6 +48,67 @@ describe("localized content", () => {
     expect(math.activity.type).toBe("number-flashcards");
   });
 
+  it("marks Alphabet as playable letter flashcards in each locale", () => {
+    const expectedLetters = {
+      en: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+      ru: ["А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я"],
+      kk: ["А", "Ә", "Б", "В", "Г", "Ғ", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Қ", "Л", "М", "Н", "Ң", "О", "Ө", "П", "Р", "С", "Т", "У", "Ұ", "Ү", "Ф", "Х", "Һ", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "І", "Ь", "Э", "Ю", "Я"]
+    };
+
+    for (const locale of locales) {
+      const alphabet = getLessonById(locale.code, "alphabet");
+
+      expect(alphabet?.status).toBe("playable");
+      if (!alphabet || alphabet.status !== "playable" || alphabet.activity.type !== "letter-flashcards") {
+        throw new Error(`Missing letter flashcards for ${locale.code}`);
+      }
+
+      expect(alphabet.activity.locale).toBe(locale.code);
+      expect(alphabet.activity.cards.map((card) => card.value)).toEqual(expectedLetters[locale.code]);
+      expect(alphabet.activity.cards.every((card) => card.object.label.trim().length > 0)).toBe(true);
+      expect(alphabet.activity.cards.every((card) => Boolean(card.object.imageSrc ?? card.object.glyph?.trim()))).toBe(true);
+      expect(alphabet.activity.copy.next).not.toContain("number");
+    }
+  });
+
+  it("adds a visual object to alphabet cards across languages", () => {
+    const englishAlphabet = getLessonById("en", "alphabet");
+    const russianAlphabet = getLessonById("ru", "alphabet");
+    const kazakhAlphabet = getLessonById("kk", "alphabet");
+
+    if (
+      !englishAlphabet ||
+      englishAlphabet.status !== "playable" ||
+      englishAlphabet.activity.type !== "letter-flashcards" ||
+      !russianAlphabet ||
+      russianAlphabet.status !== "playable" ||
+      russianAlphabet.activity.type !== "letter-flashcards" ||
+      !kazakhAlphabet ||
+      kazakhAlphabet.status !== "playable" ||
+      kazakhAlphabet.activity.type !== "letter-flashcards"
+    ) {
+      throw new Error("Missing letter flashcards");
+    }
+
+    expect(englishAlphabet.activity.cards[0].object).toEqual({
+      label: "apple",
+      imageSrc: "/media/objects/apple.svg"
+    });
+    expect(englishAlphabet.activity.cards[1].object.label).toBe("ball");
+    expect(englishAlphabet.activity.cards[1].object.glyph).toBe("⚽");
+    expect(englishAlphabet.activity.cards.at(-1)?.object.label).toBe("zebra");
+    expect(russianAlphabet.activity.cards.at(-1)?.object).toEqual({
+      label: "яблоко",
+      imageSrc: "/media/objects/apple.svg"
+    });
+    expect(kazakhAlphabet.activity.cards[0].object).toEqual({
+      label: "алма",
+      imageSrc: "/media/objects/apple.svg"
+    });
+    expect(kazakhAlphabet.activity.cards.find((card) => card.value === "Қ")?.object.label).toBe("қоян");
+    expect(kazakhAlphabet.activity.cards.find((card) => card.value === "І")?.object.label).toBe("ірімшік");
+  });
+
   it("keeps the first numbers card from 0 through 10", () => {
     for (const locale of locales) {
       const firstRange = getNumberRangeLesson(locale.code, "0-10");

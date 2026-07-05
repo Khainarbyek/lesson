@@ -92,6 +92,17 @@ export type NumberFlashcard = {
   objectsLabel: string;
 };
 
+export type LetterFlashcard = {
+  value: string;
+  name: string;
+  speechText: string;
+  object: {
+    label: string;
+    imageSrc?: string;
+    glyph?: string;
+  };
+};
+
 export type ActivityCopy = {
   correct: string;
   incorrect: string;
@@ -110,6 +121,21 @@ export type NumberFlashcardCopy = {
   traceRetry: string;
   writePrompt: string;
   objectsLabel: string;
+  progress: string;
+  speechLocale: string;
+  speechFallbackLocales: string[];
+};
+
+export type LetterFlashcardCopy = {
+  listen: string;
+  next: string;
+  previous: string;
+  checkDrawing: string;
+  clearDrawing: string;
+  traceChecking: string;
+  traceSuccess: string;
+  traceRetry: string;
+  writePrompt: string;
   progress: string;
   speechLocale: string;
   speechFallbackLocales: string[];
@@ -145,6 +171,12 @@ export type PlayableLesson = LessonBase & {
         type: "number-flashcards";
         copy: NumberFlashcardCopy;
         cards: NumberFlashcard[];
+      }
+    | {
+        type: "letter-flashcards";
+        locale: LocaleCode;
+        copy: LetterFlashcardCopy;
+        cards: LetterFlashcard[];
       };
 };
 
@@ -426,6 +458,51 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
   }
 };
 
+const letterFlashcardCopy: Record<LocaleCode, LetterFlashcardCopy> = {
+  en: {
+    listen: "Listen",
+    next: "Next letter",
+    previous: "Previous letter",
+    checkDrawing: "Check drawing",
+    clearDrawing: "Clear drawing",
+    traceChecking: "Checking drawing...",
+    traceSuccess: "Great letter tracing!",
+    traceRetry: "Try tracing the letter again.",
+    writePrompt: "Trace this letter with your finger.",
+    progress: "letter card",
+    speechLocale: "en-US",
+    speechFallbackLocales: []
+  },
+  ru: {
+    listen: "Слушать",
+    next: "Следующая буква",
+    previous: "Предыдущая буква",
+    checkDrawing: "Проверить рисунок",
+    clearDrawing: "Очистить рисунок",
+    traceChecking: "Проверяю рисунок...",
+    traceSuccess: "Отлично обвел букву!",
+    traceRetry: "Попробуй обвести букву еще раз.",
+    writePrompt: "Обведи эту букву пальцем.",
+    progress: "карточка с буквой",
+    speechLocale: "ru-RU",
+    speechFallbackLocales: []
+  },
+  kk: {
+    listen: "Тыңдау",
+    next: "Келесі әріп",
+    previous: "Алдыңғы әріп",
+    checkDrawing: "Сызуды тексеру",
+    clearDrawing: "Сызуды тазалау",
+    traceChecking: "Сызуды тексеріп жатырмын...",
+    traceSuccess: "Әріпті жақсы сыздың!",
+    traceRetry: "Әріпті тағы бір рет сыз.",
+    writePrompt: "Бұл әріпті саусағыңмен сыз.",
+    progress: "әріп карточкасы",
+    speechLocale: "kk-KZ",
+    speechFallbackLocales: ["ru-RU"]
+  }
+};
+
 const numbersTopicCopy: Record<LocaleCode, NumbersTopicCopy> = {
   en: {
     title: "Numbers",
@@ -549,6 +626,129 @@ function numberCards(locale: LocaleCode, start = 0, end = 10): NumberFlashcard[]
   });
 }
 
+function letterCard(value: string, name: string, object: LetterFlashcard["object"]): LetterFlashcard {
+  return {
+    value,
+    name,
+    speechText: value,
+    object
+  };
+}
+
+const letterCardValues: Record<LocaleCode, LetterFlashcard[]> = {
+  en: [
+    letterCard("A", "letter A", { label: "apple", imageSrc: "/media/objects/apple.svg" }),
+    letterCard("B", "letter B", { label: "ball", glyph: "⚽" }),
+    letterCard("C", "letter C", { label: "cat", glyph: "🐱" }),
+    letterCard("D", "letter D", { label: "dog", glyph: "🐶" }),
+    letterCard("E", "letter E", { label: "elephant", glyph: "🐘" }),
+    letterCard("F", "letter F", { label: "fish", glyph: "🐟" }),
+    letterCard("G", "letter G", { label: "grapes", glyph: "🍇" }),
+    letterCard("H", "letter H", { label: "house", glyph: "🏠" }),
+    letterCard("I", "letter I", { label: "ice cream", glyph: "🍦" }),
+    letterCard("J", "letter J", { label: "juice", glyph: "🧃" }),
+    letterCard("K", "letter K", { label: "kite", glyph: "🪁" }),
+    letterCard("L", "letter L", { label: "lion", glyph: "🦁" }),
+    letterCard("M", "letter M", { label: "moon", glyph: "🌙" }),
+    letterCard("N", "letter N", { label: "notebook", glyph: "📓" }),
+    letterCard("O", "letter O", { label: "orange", glyph: "🍊" }),
+    letterCard("P", "letter P", { label: "pencil", glyph: "✏️" }),
+    letterCard("Q", "letter Q", { label: "queen", glyph: "👑" }),
+    letterCard("R", "letter R", { label: "rainbow", glyph: "🌈" }),
+    letterCard("S", "letter S", { label: "sun", glyph: "☀️" }),
+    letterCard("T", "letter T", { label: "tree", glyph: "🌳" }),
+    letterCard("U", "letter U", { label: "umbrella", glyph: "☂️" }),
+    letterCard("V", "letter V", { label: "violin", glyph: "🎻" }),
+    letterCard("W", "letter W", { label: "watermelon", glyph: "🍉" }),
+    letterCard("X", "letter X", { label: "xylophone", glyph: "🎼" }),
+    letterCard("Y", "letter Y", { label: "yarn", glyph: "🧶" }),
+    letterCard("Z", "letter Z", { label: "zebra", glyph: "🦓" })
+  ],
+  ru: [
+    letterCard("А", "буква А", { label: "арбуз", glyph: "🍉" }),
+    letterCard("Б", "буква Б", { label: "бабочка", glyph: "🦋" }),
+    letterCard("В", "буква В", { label: "велосипед", glyph: "🚲" }),
+    letterCard("Г", "буква Г", { label: "гриб", glyph: "🍄" }),
+    letterCard("Д", "буква Д", { label: "дом", glyph: "🏠" }),
+    letterCard("Е", "буква Е", { label: "ель", glyph: "🌲" }),
+    letterCard("Ё", "буква Ё", { label: "ёж", glyph: "🦔" }),
+    letterCard("Ж", "буква Ж", { label: "жук", glyph: "🪲" }),
+    letterCard("З", "буква З", { label: "зебра", glyph: "🦓" }),
+    letterCard("И", "буква И", { label: "индюк", glyph: "🦃" }),
+    letterCard("Й", "буква Й", { label: "йогурт", glyph: "🥣" }),
+    letterCard("К", "буква К", { label: "кот", glyph: "🐱" }),
+    letterCard("Л", "буква Л", { label: "лев", glyph: "🦁" }),
+    letterCard("М", "буква М", { label: "мяч", glyph: "⚽" }),
+    letterCard("Н", "буква Н", { label: "нос", glyph: "👃" }),
+    letterCard("О", "буква О", { label: "облако", glyph: "☁️" }),
+    letterCard("П", "буква П", { label: "поезд", glyph: "🚂" }),
+    letterCard("Р", "буква Р", { label: "рыба", glyph: "🐟" }),
+    letterCard("С", "буква С", { label: "солнце", glyph: "☀️" }),
+    letterCard("Т", "буква Т", { label: "тигр", glyph: "🐯" }),
+    letterCard("У", "буква У", { label: "улитка", glyph: "🐌" }),
+    letterCard("Ф", "буква Ф", { label: "флаг", glyph: "🚩" }),
+    letterCard("Х", "буква Х", { label: "хлеб", glyph: "🍞" }),
+    letterCard("Ц", "буква Ц", { label: "цветок", glyph: "🌸" }),
+    letterCard("Ч", "буква Ч", { label: "часы", glyph: "⏰" }),
+    letterCard("Ш", "буква Ш", { label: "шапка", glyph: "🧢" }),
+    letterCard("Щ", "буква Щ", { label: "щётка", glyph: "🪥" }),
+    letterCard("Ъ", "буква Ъ", { label: "твёрдый знак", glyph: "Ъ" }),
+    letterCard("Ы", "буква Ы", { label: "сыр", glyph: "🧀" }),
+    letterCard("Ь", "буква Ь", { label: "мягкий знак", glyph: "Ь" }),
+    letterCard("Э", "буква Э", { label: "эскимо", glyph: "🍦" }),
+    letterCard("Ю", "буква Ю", { label: "юла", glyph: "🌀" }),
+    letterCard("Я", "буква Я", { label: "яблоко", imageSrc: "/media/objects/apple.svg" })
+  ],
+  kk: [
+    letterCard("А", "А әрпі", { label: "алма", imageSrc: "/media/objects/apple.svg" }),
+    letterCard("Ә", "Ә әрпі", { label: "әтеш", glyph: "🐓" }),
+    letterCard("Б", "Б әрпі", { label: "балық", glyph: "🐟" }),
+    letterCard("В", "В әрпі", { label: "велосипед", glyph: "🚲" }),
+    letterCard("Г", "Г әрпі", { label: "гүл", glyph: "🌸" }),
+    letterCard("Ғ", "Ғ әрпі", { label: "ғарыш", glyph: "🚀" }),
+    letterCard("Д", "Д әрпі", { label: "доп", glyph: "⚽" }),
+    letterCard("Е", "Е әрпі", { label: "ешкі", glyph: "🐐" }),
+    letterCard("Ё", "Ё әрпі", { label: "ёж", glyph: "🦔" }),
+    letterCard("Ж", "Ж әрпі", { label: "жұлдыз", glyph: "⭐" }),
+    letterCard("З", "З әрпі", { label: "зебра", glyph: "🦓" }),
+    letterCard("И", "И әрпі", { label: "ит", glyph: "🐶" }),
+    letterCard("Й", "Й әрпі", { label: "йогурт", glyph: "🥣" }),
+    letterCard("К", "К әрпі", { label: "кітап", glyph: "📚" }),
+    letterCard("Қ", "Қ әрпі", { label: "қоян", glyph: "🐰" }),
+    letterCard("Л", "Л әрпі", { label: "лимон", glyph: "🍋" }),
+    letterCard("М", "М әрпі", { label: "мысық", glyph: "🐱" }),
+    letterCard("Н", "Н әрпі", { label: "нан", glyph: "🍞" }),
+    letterCard("Ң", "Ң әрпі", { label: "аң", glyph: "🐾" }),
+    letterCard("О", "О әрпі", { label: "орындық", glyph: "🪑" }),
+    letterCard("Ө", "Ө әрпі", { label: "өрік", glyph: "🍑" }),
+    letterCard("П", "П әрпі", { label: "піл", glyph: "🐘" }),
+    letterCard("Р", "Р әрпі", { label: "робот", glyph: "🤖" }),
+    letterCard("С", "С әрпі", { label: "сағат", glyph: "⏰" }),
+    letterCard("Т", "Т әрпі", { label: "тау", glyph: "⛰️" }),
+    letterCard("У", "У әрпі", { label: "уық", glyph: "🏕️" }),
+    letterCard("Ұ", "Ұ әрпі", { label: "ұшақ", glyph: "✈️" }),
+    letterCard("Ү", "Ү әрпі", { label: "үйрек", glyph: "🦆" }),
+    letterCard("Ф", "Ф әрпі", { label: "фото", glyph: "📷" }),
+    letterCard("Х", "Х әрпі", { label: "хат", glyph: "✉️" }),
+    letterCard("Һ", "Һ әрпі", { label: "қаһарман", glyph: "🦸" }),
+    letterCard("Ц", "Ц әрпі", { label: "цирк", glyph: "🎪" }),
+    letterCard("Ч", "Ч әрпі", { label: "чемодан", glyph: "🧳" }),
+    letterCard("Ш", "Ш әрпі", { label: "шар", glyph: "🎈" }),
+    letterCard("Щ", "Щ әрпі", { label: "щётка", glyph: "🪥" }),
+    letterCard("Ъ", "Ъ әрпі", { label: "қатты белгі", glyph: "Ъ" }),
+    letterCard("Ы", "Ы әрпі", { label: "ыдыс", glyph: "🍽️" }),
+    letterCard("І", "І әрпі", { label: "ірімшік", glyph: "🧀" }),
+    letterCard("Ь", "Ь әрпі", { label: "жұмсақ белгі", glyph: "Ь" }),
+    letterCard("Э", "Э әрпі", { label: "экран", glyph: "🖥️" }),
+    letterCard("Ю", "Ю әрпі", { label: "юла", glyph: "🌀" }),
+    letterCard("Я", "Я әрпі", { label: "ягуар", glyph: "🐆" })
+  ]
+};
+
+function letterCards(locale: LocaleCode): LetterFlashcard[] {
+  return letterCardValues[locale];
+}
+
 const lessons: Record<LocaleCode, Lesson[]> = {
   en: [
     {
@@ -563,37 +763,10 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       accent: "berry",
       route: localizedPath("en", "/lessons/alphabet"),
       activity: {
-        type: "choice",
-        copy: {
-          correct: "Great job!",
-          incorrect: "Try again.",
-          next: "Next letter",
-          progress: "letters found"
-        },
-        prompts: [
-          {
-            id: "letter-a",
-            question: "Find the letter A",
-            target: "A",
-            correctChoiceId: "a",
-            choices: [
-              { id: "a", label: "A", visual: "A" },
-              { id: "m", label: "M", visual: "M" },
-              { id: "s", label: "S", visual: "S" }
-            ]
-          },
-          {
-            id: "letter-b",
-            question: "Find the letter B",
-            target: "B",
-            correctChoiceId: "b",
-            choices: [
-              { id: "p", label: "P", visual: "P" },
-              { id: "b", label: "B", visual: "B" },
-              { id: "d", label: "D", visual: "D" }
-            ]
-          }
-        ]
+        type: "letter-flashcards",
+        locale: "en",
+        copy: letterFlashcardCopy.en,
+        cards: letterCards("en")
       }
     },
     {
@@ -711,37 +884,10 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       accent: "berry",
       route: localizedPath("ru", "/lessons/alphabet"),
       activity: {
-        type: "choice",
-        copy: {
-          correct: "Отлично!",
-          incorrect: "Попробуй еще раз.",
-          next: "Следующая буква",
-          progress: "букв найдено"
-        },
-        prompts: [
-          {
-            id: "letter-a",
-            question: "Найди букву А",
-            target: "А",
-            correctChoiceId: "a",
-            choices: [
-              { id: "a", label: "А", visual: "А" },
-              { id: "m", label: "М", visual: "М" },
-              { id: "s", label: "С", visual: "С" }
-            ]
-          },
-          {
-            id: "letter-b",
-            question: "Найди букву Б",
-            target: "Б",
-            correctChoiceId: "b",
-            choices: [
-              { id: "p", label: "П", visual: "П" },
-              { id: "b", label: "Б", visual: "Б" },
-              { id: "d", label: "Д", visual: "Д" }
-            ]
-          }
-        ]
+        type: "letter-flashcards",
+        locale: "ru",
+        copy: letterFlashcardCopy.ru,
+        cards: letterCards("ru")
       }
     },
     {
@@ -859,37 +1005,10 @@ const lessons: Record<LocaleCode, Lesson[]> = {
       accent: "berry",
       route: localizedPath("kk", "/lessons/alphabet"),
       activity: {
-        type: "choice",
-        copy: {
-          correct: "Жарайсың!",
-          incorrect: "Тағы байқап көр.",
-          next: "Келесі әріп",
-          progress: "әріп табылды"
-        },
-        prompts: [
-          {
-            id: "letter-a",
-            question: "А әрпін тап",
-            target: "А",
-            correctChoiceId: "a",
-            choices: [
-              { id: "a", label: "А", visual: "А" },
-              { id: "m", label: "М", visual: "М" },
-              { id: "s", label: "С", visual: "С" }
-            ]
-          },
-          {
-            id: "letter-b",
-            question: "Б әрпін тап",
-            target: "Б",
-            correctChoiceId: "b",
-            choices: [
-              { id: "p", label: "П", visual: "П" },
-              { id: "b", label: "Б", visual: "Б" },
-              { id: "d", label: "Д", visual: "Д" }
-            ]
-          }
-        ]
+        type: "letter-flashcards",
+        locale: "kk",
+        copy: letterFlashcardCopy.kk,
+        cards: letterCards("kk")
       }
     },
     {
