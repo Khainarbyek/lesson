@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { Check, ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
 import type { PlayableLesson } from "../lib/content";
-import { scoreNumberTrace, type TraceStroke } from "../lib/numberTrace";
+import type { TraceStroke } from "../lib/numberTrace";
+import { getTraceOcrConfig, scoreTraceByOCR, warmUpOcrWorker } from "../lib/ocrTrace";
 import { getLessonProgress, saveLessonProgress, type LessonProgress } from "../lib/progress";
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 };
 
 type Feedback = "correct" | "incorrect" | null;
-type TraceFeedback = "success" | "retry" | null;
+type TraceFeedback = "success" | "retry" | "checking" | null;
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
 type CanvasMouseEvent = MouseEvent<HTMLCanvasElement>;
 type CanvasPoint = {
@@ -122,12 +123,18 @@ export function LessonActivity({ lesson }: Props) {
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingActiveRef = useRef(false);
   const drawingStrokesRef = useRef<TraceStroke[]>([]);
+  const traceCheckIdRef = useRef(0);
+  const numberTraceOcrConfig = useMemo(
+    () => (lesson.activity.type === "number-flashcards" ? getTraceOcrConfig({ kind: "number" }) : null),
+    [lesson.activity.type]
+  );
   const progressText = useMemo(
     () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
     [lesson.activity.copy.progress, progress.attempts, progress.correct]
   );
 
   function resetTraceState() {
+    traceCheckIdRef.current += 1;
     drawingActiveRef.current = false;
     drawingStrokesRef.current = [];
     setTraceFeedback(null);
@@ -152,6 +159,16 @@ export function LessonActivity({ lesson }: Props) {
   useEffect(() => {
     resetTraceState();
   }, [cardIndex, lesson.id]);
+
+  useEffect(() => {
+    if (!numberTraceOcrConfig) {
+      return;
+    }
+
+    void warmUpOcrWorker(numberTraceOcrConfig).catch(() => {
+      // Checking still works later if the user retries and the worker loads successfully.
+    });
+  }, [numberTraceOcrConfig]);
 
   useEffect(() => {
     if (lesson.activity.type !== "number-flashcards") {
@@ -335,12 +352,32 @@ export function LessonActivity({ lesson }: Props) {
       context?.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function checkDrawing() {
+    async function checkDrawing() {
       const canvas = drawingCanvasRef.current;
-      const result = scoreNumberTrace(card.value, drawingStrokesRef.current, canvas?.width ?? 520, canvas?.height ?? 260);
+      if (!canvas || !numberTraceOcrConfig) {
+        return;
+      }
 
-      setTraceFeedback(result.passed ? "success" : "retry");
+      const checkId = traceCheckIdRef.current + 1;
+      traceCheckIdRef.current = checkId;
+      setTraceFeedback("checking");
+
+      try {
+        const result = await scoreTraceByOCR(canvas, String(card.value), numberTraceOcrConfig);
+
+        if (traceCheckIdRef.current !== checkId) {
+          return;
+        }
+
+        setTraceFeedback(result.passed ? "success" : "retry");
+      } catch {
+        if (traceCheckIdRef.current === checkId) {
+          setTraceFeedback("retry");
+        }
+      }
     }
+
+    const isCheckingTrace = traceFeedback === "checking";
 
     return (
       <section className="activity-shell number-activity-shell" aria-labelledby="activity-title">
@@ -398,7 +435,14 @@ export function LessonActivity({ lesson }: Props) {
                 onMouseLeave={stopMouseDrawing}
               />
               <div className="drawing-actions">
-                <button className="icon-button drawing-check-button" type="button" onClick={checkDrawing} aria-label={activity.copy.checkDrawing}>
+                <button
+                  className="icon-button drawing-check-button"
+                  type="button"
+                  onClick={checkDrawing}
+                  aria-label={activity.copy.checkDrawing}
+                  aria-busy={isCheckingTrace}
+                  disabled={isCheckingTrace}
+                >
                   <Check aria-hidden="true" focusable="false" strokeWidth={2.4} />
                 </button>
                 <button className="icon-button drawing-clear-button" type="button" onClick={clearDrawing} aria-label={activity.copy.clearDrawing}>
@@ -408,7 +452,11 @@ export function LessonActivity({ lesson }: Props) {
             </div>
             {traceFeedback && (
               <p className={`trace-feedback ${traceFeedback}`} aria-live="polite">
-                {traceFeedback === "success" ? activity.copy.traceSuccess : activity.copy.traceRetry}
+                {traceFeedback === "checking"
+                  ? activity.copy.traceChecking
+                  : traceFeedback === "success"
+                    ? activity.copy.traceSuccess
+                    : activity.copy.traceRetry}
               </p>
             )}
           </div>

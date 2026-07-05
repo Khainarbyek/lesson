@@ -1,8 +1,26 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LessonActivity } from "../components/LessonActivity";
 import { getLessonById, getNumberRangeLesson } from "../lib/content";
+import { getTraceOcrConfig, scoreTraceByOCR, warmUpOcrWorker, type OcrTraceScore, type TraceOcrConfig } from "../lib/ocrTrace";
+
+const digitOcrConfig: TraceOcrConfig = {
+  languages: ["eng"],
+  whitelist: "0123456789",
+  pageSegMode: "single_word",
+  minConfidence: 45
+};
+
+vi.mock("../lib/ocrTrace", () => ({
+  getTraceOcrConfig: vi.fn(() => digitOcrConfig),
+  scoreTraceByOCR: vi.fn(),
+  warmUpOcrWorker: vi.fn(() => Promise.resolve())
+}));
+
+const getTraceOcrConfigMock = vi.mocked(getTraceOcrConfig);
+const scoreTraceByOCRMock = vi.mocked(scoreTraceByOCR);
+const warmUpOcrWorkerMock = vi.mocked(warmUpOcrWorker);
 
 class MockSpeechSynthesisUtterance {
   lang = "";
@@ -63,6 +81,10 @@ function drawTouchStroke(canvas: HTMLCanvasElement, points: Array<{ x: number; y
 beforeEach(() => {
   speechSynthesisMock.cancel.mockClear();
   speechSynthesisMock.speak.mockClear();
+  getTraceOcrConfigMock.mockClear();
+  warmUpOcrWorkerMock.mockClear();
+  scoreTraceByOCRMock.mockReset();
+  scoreTraceByOCRMock.mockResolvedValue({ passed: false, recognizedText: "", confidence: 0 });
   Object.defineProperty(window, "SpeechSynthesisUtterance", {
     configurable: true,
     value: MockSpeechSynthesisUtterance
@@ -328,11 +350,58 @@ describe("LessonActivity", () => {
     }
   });
 
-  it("shows success when the traced number covers every digit", () => {
+  it("warms up digit OCR when number flashcards render", () => {
     const lesson = getNumberRangeLesson("en", "21-30");
     if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
       throw new Error("Missing 21-30 math lesson");
     }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(getTraceOcrConfigMock).toHaveBeenCalledWith({ kind: "number" });
+    expect(warmUpOcrWorkerMock).toHaveBeenCalledWith(digitOcrConfig);
+  });
+
+  it("shows checking feedback while OCR is reading the drawing", async () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    let resolveOcr: (value: OcrTraceScore) => void = () => {};
+    scoreTraceByOCRMock.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveOcr = resolve;
+      })
+    );
+
+    render(<LessonActivity lesson={lesson} />);
+
+    const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+    mockTraceCanvas(canvas);
+
+    drawTouchStroke(canvas, [
+      { x: 150, y: 60 },
+      { x: 225, y: 205 }
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
+
+    expect(screen.getByText("Checking drawing...")).toBeInTheDocument();
+
+    await act(async () => {
+      resolveOcr({ passed: true, recognizedText: "21", confidence: 90 });
+    });
+
+    expect(await screen.findByText("Great tracing!")).toBeInTheDocument();
+  });
+
+  it("shows success when OCR recognizes the expected number", async () => {
+    const lesson = getNumberRangeLesson("en", "21-30");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing 21-30 math lesson");
+    }
+
+    scoreTraceByOCRMock.mockResolvedValueOnce({ passed: true, recognizedText: "21", confidence: 91 });
 
     render(<LessonActivity lesson={lesson} />);
 
@@ -353,14 +422,17 @@ describe("LessonActivity", () => {
     ]);
     fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
 
-    expect(screen.getByText("Great tracing!")).toBeInTheDocument();
+    expect(await screen.findByText("Great tracing!")).toBeInTheDocument();
+    expect(scoreTraceByOCRMock).toHaveBeenCalledWith(canvas, "21", digitOcrConfig);
   });
 
-  it("asks the learner to try again when only one digit is traced", () => {
+  it("asks the learner to try again when OCR does not recognize the expected number", async () => {
     const lesson = getNumberRangeLesson("en", "21-30");
     if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
       throw new Error("Missing 21-30 math lesson");
     }
+
+    scoreTraceByOCRMock.mockResolvedValueOnce({ passed: false, recognizedText: "2", confidence: 88 });
 
     render(<LessonActivity lesson={lesson} />);
 
@@ -373,14 +445,16 @@ describe("LessonActivity", () => {
     ]);
     fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
 
-    expect(screen.getByText("Try tracing more of the number.")).toBeInTheDocument();
+    expect(await screen.findByText("Try tracing more of the number.")).toBeInTheDocument();
   });
 
-  it("asks the learner to try again when a different two-digit number is traced", () => {
+  it("asks the learner to try again when OCR reads a different two-digit number", async () => {
     const lesson = getNumberRangeLesson("en", "51-60");
     if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
       throw new Error("Missing 51-60 math lesson");
     }
+
+    scoreTraceByOCRMock.mockResolvedValueOnce({ passed: false, recognizedText: "62", confidence: 94 });
 
     render(<LessonActivity lesson={lesson} />);
 
@@ -405,6 +479,6 @@ describe("LessonActivity", () => {
     fireEvent.click(screen.getByRole("button", { name: "Check drawing" }));
 
     expect(screen.getByLabelText("51 fifty one")).toBeInTheDocument();
-    expect(screen.getByText("Try tracing more of the number.")).toBeInTheDocument();
+    expect(await screen.findByText("Try tracing more of the number.")).toBeInTheDocument();
   });
 });

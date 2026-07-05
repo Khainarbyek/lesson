@@ -455,6 +455,11 @@ a {
   color: #775400;
 }
 
+.trace-feedback.checking {
+  background: rgba(36, 89, 133, 0.14);
+  color: #245985;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -105,6 +105,7 @@ export type NumberFlashcardCopy = {
   previous: string;
   checkDrawing: string;
   clearDrawing: string;
+  traceChecking: string;
   traceSuccess: string;
   traceRetry: string;
   writePrompt: string;
@@ -384,6 +385,7 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     previous: "Previous number",
     checkDrawing: "Check drawing",
     clearDrawing: "Clear drawing",
+    traceChecking: "Checking drawing...",
     traceSuccess: "Great tracing!",
     traceRetry: "Try tracing more of the number.",
     writePrompt: "Write this number on paper, then trace it with your finger.",
@@ -398,6 +400,7 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     previous: "Предыдущее число",
     checkDrawing: "Проверить рисунок",
     clearDrawing: "Очистить рисунок",
+    traceChecking: "Проверяю рисунок...",
     traceSuccess: "Отлично обвел!",
     traceRetry: "Попробуй обвести число еще.",
     writePrompt: "Напиши это число на бумаге, затем обведи его пальцем.",
@@ -412,6 +415,7 @@ const numberFlashcardCopy: Record<LocaleCode, NumberFlashcardCopy> = {
     previous: "Алдыңғы сан",
     checkDrawing: "Сызуды тексеру",
     clearDrawing: "Сызуды тазалау",
+    traceChecking: "Сызуды тексеріп жатырмын...",
     traceSuccess: "Жақсы сыздың!",
     traceRetry: "Санды тағы толық сыз.",
     writePrompt: "Бұл санды қағазға жаз, кейін саусағыңмен қайталап сыз.",
