@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { getBuildVersion } from "../lib/buildVersion";
 import type { LocaleCode } from "../lib/locales";
 import { defaultLocale } from "../lib/locales";
 import { defaultSocialImage, getCanonicalUrl, type LocaleAlternate } from "../lib/seo";
@@ -29,6 +30,7 @@ const ogLocales: Record<LocaleCode, string> = {
   ru: "ru_RU",
   kk: "kk_KZ"
 };
+const buildVersion = getBuildVersion();
 ---
 
 <!doctype html>
@@ -58,5 +60,6 @@ const ogLocales: Record<LocaleCode, string> = {
   </head>
   <body>
     <slot />
+    <footer class="build-version" aria-label="Build version">Build {buildVersion}</footer>
   </body>
 </html>

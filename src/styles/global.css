@@ -53,6 +53,23 @@ a {
   outline-offset: 4px;
 }
 
+.build-version {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 40;
+  border: 1px solid rgba(23, 32, 51, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: rgba(23, 32, 51, 0.58);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 6px 8px;
+  pointer-events: none;
+  box-shadow: 0 8px 18px rgba(23, 32, 51, 0.08);
+}
+
 .container-shell {
   width: min(1160px, calc(100% - 32px));
   margin: 0 auto;
