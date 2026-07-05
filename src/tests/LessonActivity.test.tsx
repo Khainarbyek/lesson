@@ -166,4 +166,57 @@ describe("LessonActivity", () => {
     expect(screen.queryByText(/сан карточкасы/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(lesson.activity.copy.writePrompt)).toBeInTheDocument();
   });
+
+  it("draws on the number tracing canvas with touch events", () => {
+    const lesson = getLessonById("en", "math");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "number-flashcards") {
+      throw new Error("Missing math lesson");
+    }
+
+    const originalPointerEvent = window.PointerEvent;
+    Object.defineProperty(window, "PointerEvent", {
+      configurable: true,
+      value: undefined
+    });
+
+    try {
+      render(<LessonActivity lesson={lesson} />);
+
+      const canvas = screen.getByLabelText(lesson.activity.copy.writePrompt) as HTMLCanvasElement;
+      const context = {
+        beginPath: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        stroke: vi.fn(),
+        clearRect: vi.fn()
+      };
+
+      vi.spyOn(canvas, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
+      vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+        width: 260,
+        height: 130,
+        left: 10,
+        top: 20,
+        right: 270,
+        bottom: 150,
+        x: 10,
+        y: 20,
+        toJSON: () => ({})
+      });
+
+      fireEvent.touchStart(canvas, { touches: [{ clientX: 40, clientY: 50 }] });
+      fireEvent.touchMove(canvas, { touches: [{ clientX: 70, clientY: 80 }] });
+      fireEvent.touchEnd(canvas);
+
+      expect(context.beginPath).toHaveBeenCalledTimes(1);
+      expect(context.moveTo).toHaveBeenCalledWith(60, 60);
+      expect(context.lineTo).toHaveBeenLastCalledWith(120, 120);
+      expect(context.stroke).toHaveBeenCalled();
+    } finally {
+      Object.defineProperty(window, "PointerEvent", {
+        configurable: true,
+        value: originalPointerEvent
+      });
+    }
+  });
 });

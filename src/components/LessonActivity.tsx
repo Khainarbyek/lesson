@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from "react";
 import { ChevronDown, ChevronUp, RotateCcw, Volume2 } from "lucide-react";
 import type { PlayableLesson } from "../lib/content";
 import { getLessonProgress, saveLessonProgress, type LessonProgress } from "../lib/progress";
@@ -9,6 +9,12 @@ type Props = {
 
 type Feedback = "correct" | "incorrect" | null;
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
+type CanvasMouseEvent = MouseEvent<HTMLCanvasElement>;
+type CanvasTouchEvent = TouchEvent<HTMLCanvasElement>;
+type CanvasPoint = {
+  x: number;
+  y: number;
+};
 
 function getCanvasContext(canvas: HTMLCanvasElement) {
   try {
@@ -18,16 +24,61 @@ function getCanvasContext(canvas: HTMLCanvasElement) {
   }
 }
 
-function getCanvasPoint(event: CanvasPointerEvent) {
-  const canvas = event.currentTarget;
+function getCanvasPointFromClient(canvas: HTMLCanvasElement, clientX: number, clientY: number): CanvasPoint {
   const rect = canvas.getBoundingClientRect();
   const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
   const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
 
   return {
-    x: (event.clientX - rect.left) * scaleX,
-    y: (event.clientY - rect.top) * scaleY
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
   };
+}
+
+function getCanvasPoint(event: CanvasPointerEvent | CanvasMouseEvent) {
+  return getCanvasPointFromClient(event.currentTarget, event.clientX, event.clientY);
+}
+
+function getTouchCanvasPoint(event: CanvasTouchEvent) {
+  const touch = event.touches[0] ?? event.changedTouches[0];
+
+  if (!touch) {
+    return null;
+  }
+
+  return getCanvasPointFromClient(event.currentTarget, touch.clientX, touch.clientY);
+}
+
+function supportsPointerEvents() {
+  return typeof window !== "undefined" && typeof window.PointerEvent === "function";
+}
+
+function capturePointer(canvas: HTMLCanvasElement, pointerId: number) {
+  if (typeof canvas.setPointerCapture !== "function") {
+    return;
+  }
+
+  try {
+    canvas.setPointerCapture(pointerId);
+  } catch {
+    // Older mobile WebViews can expose pointer events without reliable capture.
+  }
+}
+
+function releasePointer(canvas: HTMLCanvasElement, pointerId: number) {
+  if (typeof canvas.releasePointerCapture !== "function") {
+    return;
+  }
+
+  try {
+    if (typeof canvas.hasPointerCapture === "function" && !canvas.hasPointerCapture(pointerId)) {
+      return;
+    }
+
+    canvas.releasePointerCapture(pointerId);
+  } catch {
+    // Releasing capture can throw if the pointer was already cancelled.
+  }
 }
 
 export function LessonActivity({ lesson }: Props) {
@@ -81,13 +132,8 @@ export function LessonActivity({ lesson }: Props) {
       setCardIndex((current) => Math.min(activity.cards.length - 1, current + 1));
     }
 
-    function startDrawing(event: CanvasPointerEvent) {
-      const canvas = event.currentTarget;
+    function beginDrawing(canvas: HTMLCanvasElement, point: CanvasPoint) {
       const context = getCanvasContext(canvas);
-      const point = getCanvasPoint(event);
-
-      drawingActiveRef.current = true;
-      canvas.setPointerCapture(event.pointerId);
 
       if (!context) {
         return;
@@ -103,26 +149,99 @@ export function LessonActivity({ lesson }: Props) {
       context.stroke();
     }
 
-    function continueDrawing(event: CanvasPointerEvent) {
+    function drawToPoint(canvas: HTMLCanvasElement, point: CanvasPoint) {
       if (!drawingActiveRef.current) {
         return;
       }
 
-      const context = getCanvasContext(event.currentTarget);
+      const context = getCanvasContext(canvas);
       if (!context) {
         return;
       }
 
-      const point = getCanvasPoint(event);
       context.lineTo(point.x, point.y);
       context.stroke();
     }
 
+    function startDrawing(event: CanvasPointerEvent) {
+      const canvas = event.currentTarget;
+      const point = getCanvasPoint(event);
+
+      drawingActiveRef.current = true;
+      capturePointer(canvas, event.pointerId);
+      beginDrawing(canvas, point);
+    }
+
+    function continueDrawing(event: CanvasPointerEvent) {
+      drawToPoint(event.currentTarget, getCanvasPoint(event));
+    }
+
     function stopDrawing(event: CanvasPointerEvent) {
       drawingActiveRef.current = false;
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
+      releasePointer(event.currentTarget, event.pointerId);
+    }
+
+    function startTouchDrawing(event: CanvasTouchEvent) {
+      if (supportsPointerEvents()) {
+        return;
       }
+
+      const point = getTouchCanvasPoint(event);
+      if (!point) {
+        return;
+      }
+
+      event.preventDefault();
+      drawingActiveRef.current = true;
+      beginDrawing(event.currentTarget, point);
+    }
+
+    function continueTouchDrawing(event: CanvasTouchEvent) {
+      if (supportsPointerEvents() || !drawingActiveRef.current) {
+        return;
+      }
+
+      const point = getTouchCanvasPoint(event);
+      if (!point) {
+        return;
+      }
+
+      event.preventDefault();
+      drawToPoint(event.currentTarget, point);
+    }
+
+    function stopTouchDrawing(event: CanvasTouchEvent) {
+      if (supportsPointerEvents()) {
+        return;
+      }
+
+      event.preventDefault();
+      drawingActiveRef.current = false;
+    }
+
+    function startMouseDrawing(event: CanvasMouseEvent) {
+      if (supportsPointerEvents() || event.button !== 0) {
+        return;
+      }
+
+      drawingActiveRef.current = true;
+      beginDrawing(event.currentTarget, getCanvasPoint(event));
+    }
+
+    function continueMouseDrawing(event: CanvasMouseEvent) {
+      if (supportsPointerEvents()) {
+        return;
+      }
+
+      drawToPoint(event.currentTarget, getCanvasPoint(event));
+    }
+
+    function stopMouseDrawing() {
+      if (supportsPointerEvents()) {
+        return;
+      }
+
+      drawingActiveRef.current = false;
     }
 
     function clearDrawing() {
@@ -185,6 +304,14 @@ export function LessonActivity({ lesson }: Props) {
                 onPointerUp={stopDrawing}
                 onPointerCancel={stopDrawing}
                 onPointerLeave={stopDrawing}
+                onTouchStart={startTouchDrawing}
+                onTouchMove={continueTouchDrawing}
+                onTouchEnd={stopTouchDrawing}
+                onTouchCancel={stopTouchDrawing}
+                onMouseDown={startMouseDrawing}
+                onMouseMove={continueMouseDrawing}
+                onMouseUp={stopMouseDrawing}
+                onMouseLeave={stopMouseDrawing}
               />
               <button className="icon-button drawing-clear-button" type="button" onClick={clearDrawing} aria-label={activity.copy.clearDrawing}>
                 <RotateCcw aria-hidden="true" focusable="false" strokeWidth={2.4} />
