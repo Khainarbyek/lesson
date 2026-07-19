@@ -1,40 +1,50 @@
 ---
 import { ChevronLeft } from "lucide-react";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
-import { getAdditionRanges, getAdditionTopicCopy, getHomeCopy } from "../../../../lib/content";
+import {
+  getArithmeticOperationIds,
+  getArithmeticRanges,
+  getArithmeticTopicCopy,
+  getHomeCopy,
+  isArithmeticOperationId
+} from "../../../../lib/content";
 import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../../lib/locales";
 import { getLocalizedAlternates } from "../../../../lib/seo";
 
 export function getStaticPaths() {
-  return localeCodes.map((locale) => ({
-    params: { locale }
-  }));
+  return localeCodes.flatMap((locale) =>
+    getArithmeticOperationIds().map((operationId) => ({
+      params: { locale, operationId }
+    }))
+  );
 }
 
 const localeParam = Astro.params.locale;
 const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const operationIdParam = Astro.params.operationId ?? "addition";
+const operationId = isArithmeticOperationId(operationIdParam) ? operationIdParam : "addition";
 const homeCopy = getHomeCopy(locale);
-const copy = getAdditionTopicCopy(locale);
-const ranges = getAdditionRanges(locale);
-const additionPath = "/lessons/math/addition";
+const copy = getArithmeticTopicCopy(locale, operationId);
+const ranges = getArithmeticRanges(locale, operationId);
+const operationPath = `/lessons/math/${operationId}`;
 ---
 
 <BaseLayout
   title={`${copy.title} - ${homeCopy.productName}`}
   description={copy.lead}
   locale={locale}
-  canonicalPath={localizedPath(locale, additionPath)}
-  alternateLocales={getLocalizedAlternates(additionPath)}
+  canonicalPath={localizedPath(locale, operationPath)}
+  alternateLocales={getLocalizedAlternates(operationPath)}
 >
-  <main class="addition-page">
+  <main class="arithmetic-page">
     <div class="container-shell lesson-nav">
       <a href={localizedPath(locale, "/lessons/math")} class="back-link" aria-label={homeCopy.navLessons}>
         <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2.4} />
       </a>
     </div>
 
-    <section class="addition-shell-page container-shell play-card">
-      <div class="addition-heading">
+    <section class="arithmetic-shell-page container-shell play-card">
+      <div class="arithmetic-heading">
         <h1>{copy.title}</h1>
         <p>{copy.lead}</p>
       </div>
@@ -52,7 +62,7 @@ const additionPath = "/lessons/math/addition";
 </BaseLayout>
 
 <style>
-  .addition-page {
+  .arithmetic-page {
     min-height: 100vh;
     padding: 12px 0 48px;
   }
@@ -77,14 +87,14 @@ const additionPath = "/lessons/math/addition";
     height: 24px;
   }
 
-  .addition-shell-page {
+  .arithmetic-shell-page {
     display: grid;
     gap: 18px;
     max-width: 820px;
     padding: clamp(18px, 5vw, 34px);
   }
 
-  .addition-heading {
+  .arithmetic-heading {
     display: grid;
     gap: 8px;
   }

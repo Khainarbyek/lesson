@@ -1,4 +1,5 @@
 import { localeCodes, localeLabels, localizedPath, type LocaleCode } from "./locales";
+import type { ArithmeticOperationId } from "./arithmeticPractice";
 
 export type LessonStatus = "playable" | "coming-soon";
 export type LessonId = "alphabet" | "animals" | "math" | "chess" | "typing" | "chemistry";
@@ -14,7 +15,7 @@ export type NumberRangeId =
   | "71-80"
   | "81-90"
   | "91-100";
-export type AdditionRangeId = "0-10" | "0-100";
+export type ArithmeticRangeId = "0-10" | "0-100";
 
 export type LocaleMeta = {
   code: LocaleCode;
@@ -51,7 +52,7 @@ export type AgeRange = {
 };
 
 export type MathTopic = {
-  id: "numbers" | "addition";
+  id: "numbers" | ArithmeticOperationId;
   title: string;
   description: string;
   icon: string;
@@ -72,8 +73,9 @@ export type NumberRange = {
   end: number;
 };
 
-export type AdditionRange = {
-  id: AdditionRangeId;
+export type ArithmeticRange = {
+  id: ArithmeticRangeId;
+  operationId: ArithmeticOperationId;
   label: string;
   title: string;
   description: string;
@@ -82,12 +84,12 @@ export type AdditionRange = {
   max: number;
 };
 
-export type AdditionTopicCopy = {
+export type ArithmeticTopicCopy = {
   title: string;
   lead: string;
 };
 
-export type AdditionPracticeCopy = {
+export type ArithmeticPracticeCopy = {
   title: string;
   answerLabel: string;
   checkAnswer: string;
@@ -96,6 +98,7 @@ export type AdditionPracticeCopy = {
   incorrect: string;
   progress: string;
   placeholder: string;
+  operatorLabels: Record<ArithmeticOperationId, string>;
 };
 
 export type ActivityChoice = {
@@ -332,7 +335,9 @@ const numberRangeDefinitions: Array<{ id: NumberRangeId; start: number; end: num
   { id: "91-100", start: 91, end: 100 }
 ];
 
-const additionRangeDefinitions: Array<{ id: AdditionRangeId; min: number; max: number }> = [
+const arithmeticOperationIds: ArithmeticOperationId[] = ["addition", "subtraction", "multiplication", "division"];
+
+const arithmeticRangeDefinitions: Array<{ id: ArithmeticRangeId; min: number; max: number }> = [
   { id: "0-10", min: 0, max: 10 },
   { id: "0-100", min: 0, max: 100 }
 ];
@@ -550,22 +555,64 @@ const numbersTopicCopy: Record<LocaleCode, NumbersTopicCopy> = {
   }
 };
 
-const additionTopicCopy: Record<LocaleCode, AdditionTopicCopy> = {
+const arithmeticTopicCopy: Record<LocaleCode, Record<ArithmeticOperationId, ArithmeticTopicCopy>> = {
   en: {
-    title: "Addition",
-    lead: "Choose a practice range. A new plus problem appears every time."
+    addition: {
+      title: "Addition",
+      lead: "Choose a practice range. A new plus problem appears every time."
+    },
+    subtraction: {
+      title: "Subtraction",
+      lead: "Choose a practice range. Take away numbers without going below zero."
+    },
+    multiplication: {
+      title: "Multiplication",
+      lead: "Choose a practice range. A new times problem appears every time."
+    },
+    division: {
+      title: "Division",
+      lead: "Choose a practice range. Every divide problem has a whole-number answer."
+    }
   },
   ru: {
-    title: "Сложение",
-    lead: "Выбери диапазон. Каждый раз появится новый пример на плюс."
+    addition: {
+      title: "Сложение",
+      lead: "Выбери диапазон. Каждый раз появится новый пример на плюс."
+    },
+    subtraction: {
+      title: "Вычитание",
+      lead: "Выбери диапазон. Решай примеры без отрицательных ответов."
+    },
+    multiplication: {
+      title: "Умножение",
+      lead: "Выбери диапазон. Каждый раз появится новый пример на умножение."
+    },
+    division: {
+      title: "Деление",
+      lead: "Выбери диапазон. Каждый пример делится нацело."
+    }
   },
   kk: {
-    title: "Қосу",
-    lead: "Жаттығу аралығын таңда. Әр жолы жаңа қосу есебі шығады."
+    addition: {
+      title: "Қосу",
+      lead: "Жаттығу аралығын таңда. Әр жолы жаңа қосу есебі шығады."
+    },
+    subtraction: {
+      title: "Азайту",
+      lead: "Жаттығу аралығын таңда. Теріс жауапсыз азайту есептерін шығар."
+    },
+    multiplication: {
+      title: "Көбейту",
+      lead: "Жаттығу аралығын таңда. Әр жолы жаңа көбейту есебі шығады."
+    },
+    division: {
+      title: "Бөлу",
+      lead: "Жаттығу аралығын таңда. Әр бөлу есебінің жауабы бүтін сан болады."
+    }
   }
 };
 
-const additionPracticeCopy: Record<LocaleCode, AdditionPracticeCopy> = {
+const arithmeticPracticeCopy: Record<LocaleCode, ArithmeticPracticeCopy> = {
   en: {
     title: "Type the answer",
     answerLabel: "Answer",
@@ -574,7 +621,13 @@ const additionPracticeCopy: Record<LocaleCode, AdditionPracticeCopy> = {
     correct: "Great job!",
     incorrect: "Try again.",
     progress: "correct",
-    placeholder: "Type number"
+    placeholder: "Type number",
+    operatorLabels: {
+      addition: "plus",
+      subtraction: "minus",
+      multiplication: "times",
+      division: "divided by"
+    }
   },
   ru: {
     title: "Введи ответ",
@@ -584,7 +637,13 @@ const additionPracticeCopy: Record<LocaleCode, AdditionPracticeCopy> = {
     correct: "Отлично!",
     incorrect: "Попробуй еще раз.",
     progress: "верно",
-    placeholder: "Введи число"
+    placeholder: "Введи число",
+    operatorLabels: {
+      addition: "плюс",
+      subtraction: "минус",
+      multiplication: "умножить",
+      division: "разделить"
+    }
   },
   kk: {
     title: "Жауапты жаз",
@@ -594,7 +653,13 @@ const additionPracticeCopy: Record<LocaleCode, AdditionPracticeCopy> = {
     correct: "Жарайсың!",
     incorrect: "Тағы байқап көр.",
     progress: "дұрыс",
-    placeholder: "Санды жаз"
+    placeholder: "Санды жаз",
+    operatorLabels: {
+      addition: "қосу",
+      subtraction: "азайту",
+      multiplication: "көбейту",
+      division: "бөлу"
+    }
   }
 };
 
@@ -613,6 +678,27 @@ const mathTopicCopy: Record<LocaleCode, MathTopic[]> = {
       description: "Solve random plus problems and type the answer.",
       icon: "+",
       route: localizedPath("en", "/lessons/math/addition")
+    },
+    {
+      id: "subtraction",
+      title: "Subtraction",
+      description: "Practice take-away problems with no negative answers.",
+      icon: "-",
+      route: localizedPath("en", "/lessons/math/subtraction")
+    },
+    {
+      id: "multiplication",
+      title: "Multiplication",
+      description: "Solve random times problems and type the answer.",
+      icon: "×",
+      route: localizedPath("en", "/lessons/math/multiplication")
+    },
+    {
+      id: "division",
+      title: "Division",
+      description: "Divide numbers evenly and type the answer.",
+      icon: "÷",
+      route: localizedPath("en", "/lessons/math/division")
     }
   ],
   ru: [
@@ -629,6 +715,27 @@ const mathTopicCopy: Record<LocaleCode, MathTopic[]> = {
       description: "Решай случайные примеры на плюс и вводи ответ.",
       icon: "+",
       route: localizedPath("ru", "/lessons/math/addition")
+    },
+    {
+      id: "subtraction",
+      title: "Вычитание",
+      description: "Решай примеры на вычитание без отрицательных ответов.",
+      icon: "-",
+      route: localizedPath("ru", "/lessons/math/subtraction")
+    },
+    {
+      id: "multiplication",
+      title: "Умножение",
+      description: "Решай случайные примеры на умножение и вводи ответ.",
+      icon: "×",
+      route: localizedPath("ru", "/lessons/math/multiplication")
+    },
+    {
+      id: "division",
+      title: "Деление",
+      description: "Дели числа нацело и вводи ответ.",
+      icon: "÷",
+      route: localizedPath("ru", "/lessons/math/division")
     }
   ],
   kk: [
@@ -645,6 +752,27 @@ const mathTopicCopy: Record<LocaleCode, MathTopic[]> = {
       description: "Кездейсоқ қосу есептерін шығарып, жауапты жаз.",
       icon: "+",
       route: localizedPath("kk", "/lessons/math/addition")
+    },
+    {
+      id: "subtraction",
+      title: "Азайту",
+      description: "Теріс жауапсыз азайту есептерін шығарып, жауапты жаз.",
+      icon: "-",
+      route: localizedPath("kk", "/lessons/math/subtraction")
+    },
+    {
+      id: "multiplication",
+      title: "Көбейту",
+      description: "Кездейсоқ көбейту есептерін шығарып, жауапты жаз.",
+      icon: "×",
+      route: localizedPath("kk", "/lessons/math/multiplication")
+    },
+    {
+      id: "division",
+      title: "Бөлу",
+      description: "Сандарды қалдықсыз бөліп, жауапты жаз.",
+      icon: "÷",
+      route: localizedPath("kk", "/lessons/math/division")
     }
   ]
 };
@@ -719,28 +847,55 @@ function numberRangeDescription(locale: LocaleCode, range: { id: NumberRangeId }
   return `${range.id} сандарын тыңдап, алма санап, сызуды жаттықтыр.`;
 }
 
-function additionRangeTitle(locale: LocaleCode, range: { id: AdditionRangeId }): string {
-  if (locale === "en") {
-    return `Addition ${range.id}`;
+function arithmeticRangeTitle(
+  locale: LocaleCode,
+  operationId: ArithmeticOperationId,
+  range: { id: ArithmeticRangeId }
+): string {
+  const operationTitle = arithmeticTopicCopy[locale][operationId].title;
+
+  if (locale === "kk") {
+    return `${range.id} ${operationTitle.toLocaleLowerCase("kk-KZ")}`;
   }
 
-  if (locale === "ru") {
-    return `Сложение ${range.id}`;
-  }
-
-  return `${range.id} қосу`;
+  return `${operationTitle} ${range.id}`;
 }
 
-function additionRangeDescription(locale: LocaleCode, range: { id: AdditionRangeId; min: number; max: number }): string {
+function arithmeticRangeDescription(
+  locale: LocaleCode,
+  operationId: ArithmeticOperationId,
+  range: { min: number; max: number }
+): string {
   if (locale === "en") {
-    return `Add two random numbers from ${range.min} to ${range.max}.`;
+    const descriptions: Record<ArithmeticOperationId, string> = {
+      addition: `Add two random numbers from ${range.min} to ${range.max}.`,
+      subtraction: `Subtract numbers from ${range.min} to ${range.max} with no negative answers.`,
+      multiplication: `Multiply two random numbers from ${range.min} to ${range.max}.`,
+      division: `Divide numbers from ${range.min} to ${range.max} with whole-number answers.`
+    };
+
+    return descriptions[operationId];
   }
 
   if (locale === "ru") {
-    return `Складывай два случайных числа от ${range.min} до ${range.max}.`;
+    const descriptions: Record<ArithmeticOperationId, string> = {
+      addition: `Складывай два случайных числа от ${range.min} до ${range.max}.`,
+      subtraction: `Вычитай числа от ${range.min} до ${range.max} без отрицательных ответов.`,
+      multiplication: `Умножай два случайных числа от ${range.min} до ${range.max}.`,
+      division: `Дели числа от ${range.min} до ${range.max} с целым ответом.`
+    };
+
+    return descriptions[operationId];
   }
 
-  return `${range.min}-ден ${range.max}-ге дейінгі екі кездейсоқ санды қос.`;
+  const descriptions: Record<ArithmeticOperationId, string> = {
+    addition: `${range.min}-ден ${range.max}-ге дейінгі екі кездейсоқ санды қос.`,
+    subtraction: `${range.min}-ден ${range.max}-ге дейінгі сандарды теріс жауапсыз азайт.`,
+    multiplication: `${range.min}-ден ${range.max}-ге дейінгі екі кездейсоқ санды көбейт.`,
+    division: `${range.min}-ден ${range.max}-ге дейінгі сандарды бүтін жауаппен бөл.`
+  };
+
+  return descriptions[operationId];
 }
 
 function numberCards(locale: LocaleCode, start = 0, end = 10): NumberFlashcard[] {
@@ -1098,7 +1253,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Math Adventure",
-      description: "Choose number lessons, listen, count apples, and practice drawing.",
+      description: "Choose numbers, addition, subtraction, multiplication, and division practice.",
       subject: "Math",
       ageRange: "6-8",
       status: "playable",
@@ -1196,7 +1351,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математическое приключение",
-      description: "Выбирай уроки с числами, слушай, считай яблоки и тренируй письмо.",
+      description: "Выбирай числа, сложение, вычитание, умножение и деление.",
       subject: "Математика",
       ageRange: "6-8",
       status: "playable",
@@ -1294,7 +1449,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
     {
       id: "math",
       title: "Математика саяхаты",
-      description: "Сан сабақтарын таңда, тыңда, алма сана және жазуды жаттықтыр.",
+      description: "Сандарды, қосу, азайту, көбейту және бөлу жаттығуларын таңда.",
       subject: "Математика",
       ageRange: "6-8",
       status: "playable",
@@ -1378,12 +1533,28 @@ export function getNumbersTopicCopy(locale: LocaleCode): NumbersTopicCopy {
   return numbersTopicCopy[locale];
 }
 
-export function getAdditionTopicCopy(locale: LocaleCode): AdditionTopicCopy {
-  return additionTopicCopy[locale];
+export function isArithmeticOperationId(value: string): value is ArithmeticOperationId {
+  return arithmeticOperationIds.includes(value as ArithmeticOperationId);
 }
 
-export function getAdditionPracticeCopy(locale: LocaleCode): AdditionPracticeCopy {
-  return additionPracticeCopy[locale];
+export function getArithmeticOperationIds(): ArithmeticOperationId[] {
+  return [...arithmeticOperationIds];
+}
+
+export function getArithmeticTopicCopy(locale: LocaleCode, operationId: ArithmeticOperationId): ArithmeticTopicCopy {
+  return arithmeticTopicCopy[locale][operationId];
+}
+
+export function getArithmeticPracticeCopy(locale: LocaleCode): ArithmeticPracticeCopy {
+  return arithmeticPracticeCopy[locale];
+}
+
+export function getAdditionTopicCopy(locale: LocaleCode): ArithmeticTopicCopy {
+  return getArithmeticTopicCopy(locale, "addition");
+}
+
+export function getAdditionPracticeCopy(locale: LocaleCode): ArithmeticPracticeCopy {
+  return getArithmeticPracticeCopy(locale);
 }
 
 export function getNumberRangeIds(): NumberRangeId[] {
@@ -1399,22 +1570,39 @@ export function getNumberRanges(locale: LocaleCode): NumberRange[] {
   }));
 }
 
-export function getAdditionRangeIds(): AdditionRangeId[] {
-  return additionRangeDefinitions.map((range) => range.id);
+export function getArithmeticRangeIds(): ArithmeticRangeId[] {
+  return arithmeticRangeDefinitions.map((range) => range.id);
 }
 
-export function getAdditionRanges(locale: LocaleCode): AdditionRange[] {
-  return additionRangeDefinitions.map((range) => ({
+export function getArithmeticRanges(locale: LocaleCode, operationId: ArithmeticOperationId): ArithmeticRange[] {
+  return arithmeticRangeDefinitions.map((range) => ({
     ...range,
+    operationId,
     label: range.id,
-    title: additionRangeTitle(locale, range),
-    description: additionRangeDescription(locale, range),
-    route: localizedPath(locale, `/lessons/math/addition/${range.id}`)
+    title: arithmeticRangeTitle(locale, operationId, range),
+    description: arithmeticRangeDescription(locale, operationId, range),
+    route: localizedPath(locale, `/lessons/math/${operationId}/${range.id}`)
   }));
 }
 
-export function getAdditionRange(locale: LocaleCode, rangeId: string): AdditionRange | undefined {
-  return getAdditionRanges(locale).find((range) => range.id === rangeId);
+export function getArithmeticRange(
+  locale: LocaleCode,
+  operationId: ArithmeticOperationId,
+  rangeId: string
+): ArithmeticRange | undefined {
+  return getArithmeticRanges(locale, operationId).find((range) => range.id === rangeId);
+}
+
+export function getAdditionRangeIds(): ArithmeticRangeId[] {
+  return getArithmeticRangeIds();
+}
+
+export function getAdditionRanges(locale: LocaleCode): ArithmeticRange[] {
+  return getArithmeticRanges(locale, "addition");
+}
+
+export function getAdditionRange(locale: LocaleCode, rangeId: string): ArithmeticRange | undefined {
+  return getArithmeticRange(locale, "addition", rangeId);
 }
 
 export function getNumberRangeLesson(locale: LocaleCode, rangeId: string): PlayableLesson | undefined {

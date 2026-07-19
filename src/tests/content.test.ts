@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  getAdditionPracticeCopy,
-  getAdditionRange,
-  getAdditionRanges,
-  getAdditionTopicCopy,
+  getArithmeticOperationIds,
+  getArithmeticPracticeCopy,
+  getArithmeticRange,
+  getArithmeticRanges,
+  getArithmeticTopicCopy,
   getHomeCopy,
   getLessonById,
   getLessons,
@@ -60,16 +61,39 @@ describe("localized content", () => {
     expect(math.activity.type).toBe("number-flashcards");
   });
 
-  it("adds Addition as a second Math topic", () => {
+  it("adds arithmetic operation topics to Math", () => {
     const topics = getMathTopics("en");
 
-    expect(topics.map((topic) => topic.id)).toEqual(["numbers", "addition"]);
+    expect(topics.map((topic) => topic.id)).toEqual([
+      "numbers",
+      "addition",
+      "subtraction",
+      "multiplication",
+      "division"
+    ]);
     expect(topics[1]).toMatchObject({
       title: "Addition",
       icon: "+",
       route: "/en/lessons/math/addition"
     });
-    expect(getAdditionTopicCopy("en").title).toBe("Addition");
+    expect(topics[2]).toMatchObject({
+      title: "Subtraction",
+      icon: "-",
+      route: "/en/lessons/math/subtraction"
+    });
+    expect(topics[3]).toMatchObject({
+      title: "Multiplication",
+      icon: "×",
+      route: "/en/lessons/math/multiplication"
+    });
+    expect(topics[4]).toMatchObject({
+      title: "Division",
+      icon: "÷",
+      route: "/en/lessons/math/division"
+    });
+    expect(getArithmeticOperationIds()).toEqual(["addition", "subtraction", "multiplication", "division"]);
+    expect(getArithmeticTopicCopy("en", "addition").title).toBe("Addition");
+    expect(getArithmeticTopicCopy("ru", "subtraction").title).toBe("Вычитание");
   });
 
   it("marks Alphabet as playable letter flashcards in each locale", () => {
@@ -180,28 +204,31 @@ describe("localized content", () => {
     }
   });
 
-  it("defines addition practice ranges from 0-10 and 0-100", () => {
-    const ranges = getAdditionRanges("en");
+  it("defines arithmetic practice ranges from 0-10 and 0-100", () => {
+    const ranges = getArithmeticRanges("en", "multiplication");
 
     expect(ranges.map((range) => range.id)).toEqual(["0-10", "0-100"]);
     expect(ranges[0]).toMatchObject({
       min: 0,
       max: 10,
-      route: "/en/lessons/math/addition/0-10",
-      title: "Addition 0-10"
+      operationId: "multiplication",
+      route: "/en/lessons/math/multiplication/0-10",
+      title: "Multiplication 0-10"
     });
     expect(ranges[1]).toMatchObject({
       min: 0,
       max: 100,
-      route: "/en/lessons/math/addition/0-100",
-      title: "Addition 0-100"
+      operationId: "multiplication",
+      route: "/en/lessons/math/multiplication/0-100",
+      title: "Multiplication 0-100"
     });
-    expect(getAdditionPracticeCopy("en").checkAnswer).toBe("Check answer");
+    expect(getArithmeticPracticeCopy("en").checkAnswer).toBe("Check answer");
   });
 
-  it("builds localized addition ranges", () => {
-    expect(getAdditionRange("ru", "0-100")?.description).toContain("100");
-    expect(getAdditionRange("kk", "0-10")?.title).toBe("0-10 қосу");
+  it("builds localized arithmetic ranges", () => {
+    expect(getArithmeticRange("ru", "division", "0-100")?.description).toContain("целым");
+    expect(getArithmeticRange("kk", "addition", "0-10")?.title).toBe("0-10 қосу");
+    expect(getArithmeticRange("kk", "division", "0-10")?.title).toBe("0-10 бөлу");
   });
 
   it("defines lesson image metadata for every locale", () => {

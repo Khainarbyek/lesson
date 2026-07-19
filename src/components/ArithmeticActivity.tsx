@@ -1,19 +1,21 @@
 import { Check, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
-  createAdditionProblem,
-  createNextAdditionProblem,
-  isAdditionAnswerCorrect,
-  type AdditionProblem,
-  type AdditionProblemRange
-} from "../lib/additionPractice";
-import type { AdditionPracticeCopy } from "../lib/content";
+  createArithmeticProblem,
+  createNextArithmeticProblem,
+  isArithmeticAnswerCorrect,
+  type ArithmeticOperationId,
+  type ArithmeticProblem,
+  type ArithmeticProblemRange
+} from "../lib/arithmeticPractice";
+import type { ArithmeticPracticeCopy } from "../lib/content";
 
 type Props = {
+  operationId: ArithmeticOperationId;
   title: string;
   subject: string;
-  range: AdditionProblemRange;
-  copy: AdditionPracticeCopy;
+  range: ArithmeticProblemRange;
+  copy: ArithmeticPracticeCopy;
 };
 
 type Feedback = "correct" | "incorrect" | null;
@@ -25,10 +27,10 @@ type SubmitEvent = {
   preventDefault: () => void;
 };
 
-const ADDITION_FEEDBACK_DELAY_MS = 900;
+const ARITHMETIC_FEEDBACK_DELAY_MS = 900;
 
-export function AdditionActivity({ title, subject, range, copy }: Props) {
-  const [problem, setProblem] = useState<AdditionProblem | null>(null);
+export function ArithmeticActivity({ operationId, title, subject, range, copy }: Props) {
+  const [problem, setProblem] = useState<ArithmeticProblem | null>(null);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [score, setScore] = useState<Score>({ correct: 0, attempts: 0 });
@@ -54,18 +56,20 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
 
   function showNextProblem() {
     setProblem((currentProblem) =>
-      currentProblem ? createNextAdditionProblem(range, currentProblem) : createAdditionProblem(range)
+      currentProblem
+        ? createNextArithmeticProblem(operationId, range, currentProblem)
+        : createArithmeticProblem(operationId, range)
     );
     resetAnswerState();
   }
 
   useEffect(() => {
-    setProblem(createAdditionProblem(range));
+    setProblem(createArithmeticProblem(operationId, range));
     setAnswer("");
     setFeedback(null);
     setScore({ correct: 0, attempts: 0 });
     clearFeedbackTimeout();
-  }, [range.min, range.max]);
+  }, [operationId, range.min, range.max]);
 
   useEffect(() => {
     return () => {
@@ -76,15 +80,11 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
   function checkAnswer(event: SubmitEvent) {
     event.preventDefault();
 
-    if (isLocked || answer.trim() === "") {
+    if (isLocked || answer.trim() === "" || !problem) {
       return;
     }
 
-    if (!problem) {
-      return;
-    }
-
-    const isCorrect = isAdditionAnswerCorrect(answer, problem);
+    const isCorrect = isArithmeticAnswerCorrect(answer, problem);
 
     setFeedback(isCorrect ? "correct" : "incorrect");
     setScore((currentScore) => ({
@@ -99,7 +99,7 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
       }
 
       resetAnswerState();
-    }, ADDITION_FEEDBACK_DELAY_MS);
+    }, ARITHMETIC_FEEDBACK_DELAY_MS);
   }
 
   function startNewProblem() {
@@ -109,9 +109,10 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
 
   const inputStateClass =
     feedback === "correct" ? " is-correct" : feedback === "incorrect" ? " is-incorrect" : "";
+  const operatorLabel = copy.operatorLabels[operationId];
 
   return (
-    <section className="activity-shell addition-shell" aria-labelledby="activity-title">
+    <section className="activity-shell arithmetic-shell" aria-labelledby="activity-title">
       <div className="activity-header">
         <div>
           <p className="activity-kicker">{subject}</p>
@@ -122,26 +123,26 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
         </span>
       </div>
 
-      <div className="addition-problem-card" aria-label={copy.title}>
+      <div className="arithmetic-problem-card" aria-label={copy.title}>
         <p>{copy.title}</p>
-        <div className="addition-equation" aria-live="polite">
+        <div className="arithmetic-equation" aria-live="polite">
           <span>{problem?.left ?? "?"}</span>
-          <span aria-label="plus">+</span>
+          <span aria-label={operatorLabel}>{problem?.symbol ?? "?"}</span>
           <span>{problem?.right ?? "?"}</span>
           <span>=</span>
           <span>?</span>
         </div>
       </div>
 
-      <form className="addition-form" onSubmit={checkAnswer}>
-        <label className="addition-answer-label" htmlFor="addition-answer">
+      <form className="arithmetic-form" onSubmit={checkAnswer}>
+        <label className="arithmetic-answer-label" htmlFor="arithmetic-answer">
           {copy.answerLabel}
         </label>
-        <div className="addition-input-row">
+        <div className="arithmetic-input-row">
           <input
             ref={inputRef}
-            id="addition-answer"
-            className={`addition-answer-input${inputStateClass}`}
+            id="arithmetic-answer"
+            className={`arithmetic-answer-input${inputStateClass}`}
             type="number"
             inputMode="numeric"
             min="0"
@@ -151,11 +152,11 @@ export function AdditionActivity({ title, subject, range, copy }: Props) {
             disabled={isLocked}
             onChange={(event) => setAnswer(event.currentTarget.value)}
           />
-          <button className="addition-check-button" type="submit" disabled={isLocked || answer.trim() === ""}>
+          <button className="arithmetic-check-button" type="submit" disabled={isLocked || answer.trim() === ""}>
             <Check aria-hidden="true" focusable="false" strokeWidth={2.4} />
             <span>{copy.checkAnswer}</span>
           </button>
-          <button className="addition-new-button" type="button" onClick={startNewProblem}>
+          <button className="arithmetic-new-button" type="button" onClick={startNewProblem}>
             <RotateCcw aria-hidden="true" focusable="false" strokeWidth={2.4} />
             <span>{copy.newProblem}</span>
           </button>

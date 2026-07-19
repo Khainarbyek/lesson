@@ -1,13 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AdditionActivity } from "../components/AdditionActivity";
-import { getAdditionPracticeCopy } from "../lib/content";
+import { ArithmeticActivity } from "../components/ArithmeticActivity";
+import { getArithmeticPracticeCopy } from "../lib/content";
 
-const copy = getAdditionPracticeCopy("en");
+const copy = getArithmeticPracticeCopy("en");
 
 function equationText(container: HTMLElement) {
-  return container.querySelector(".addition-equation")?.textContent?.replace(/\s+/g, "") ?? "";
+  return container.querySelector(".arithmetic-equation")?.textContent?.replace(/\s+/g, "") ?? "";
 }
 
 afterEach(() => {
@@ -16,7 +16,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("AdditionActivity", () => {
+describe("ArithmeticActivity", () => {
   it("checks a correct typed answer and advances to a new random problem", async () => {
     vi.spyOn(Math, "random")
       .mockReturnValueOnce(0.2)
@@ -25,7 +25,13 @@ describe("AdditionActivity", () => {
       .mockReturnValueOnce(0.4);
 
     const { container } = render(
-      <AdditionActivity title="Addition 0-10" subject="Math" range={{ min: 0, max: 10 }} copy={copy} />
+      <ArithmeticActivity
+        operationId="addition"
+        title="Addition 0-10"
+        subject="Math"
+        range={{ min: 0, max: 10 }}
+        copy={copy}
+      />
     );
     const input = screen.getByLabelText("Answer");
 
@@ -50,16 +56,22 @@ describe("AdditionActivity", () => {
     expect(screen.queryByText("Great job!")).not.toBeInTheDocument();
   });
 
-  it("resets an incorrect answer on the same problem", async () => {
+  it("resets an incorrect answer on the same subtraction problem", async () => {
     vi.spyOn(Math, "random").mockReturnValueOnce(0.1).mockReturnValueOnce(0.3);
 
     const { container } = render(
-      <AdditionActivity title="Addition 0-10" subject="Math" range={{ min: 0, max: 10 }} copy={copy} />
+      <ArithmeticActivity
+        operationId="subtraction"
+        title="Subtraction 0-10"
+        subject="Math"
+        range={{ min: 0, max: 10 }}
+        copy={copy}
+      />
     );
     const input = screen.getByLabelText("Answer");
 
     await waitFor(() => {
-      expect(equationText(container)).toBe("1+3=?");
+      expect(equationText(container)).toBe("3-1=?");
     });
 
     vi.useFakeTimers();
@@ -75,7 +87,7 @@ describe("AdditionActivity", () => {
       vi.advanceTimersByTime(900);
     });
 
-    expect(equationText(container)).toBe("1+3=?");
+    expect(equationText(container)).toBe("3-1=?");
     expect(input).toBeEnabled();
     expect(input).toHaveValue(null);
     expect(screen.queryByText("Try again.")).not.toBeInTheDocument();

@@ -531,11 +531,11 @@ a {
   color: #245985;
 }
 
-.addition-shell {
+.arithmetic-shell {
   max-width: 860px;
 }
 
-.addition-problem-card {
+.arithmetic-problem-card {
   display: grid;
   gap: 16px;
   place-items: center;
@@ -548,15 +548,15 @@ a {
   text-align: center;
 }
 
-.addition-problem-card p,
-.addition-answer-label {
+.arithmetic-problem-card p,
+.arithmetic-answer-label {
   margin: 0;
   color: rgba(23, 32, 51, 0.68);
   font-size: 1rem;
   font-weight: 900;
 }
 
-.addition-equation {
+.arithmetic-equation {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -568,17 +568,17 @@ a {
   line-height: 1;
 }
 
-.addition-form {
+.arithmetic-form {
   display: grid;
   gap: 10px;
 }
 
-.addition-input-row {
+.arithmetic-input-row {
   display: grid;
   gap: 10px;
 }
 
-.addition-answer-input {
+.arithmetic-answer-input {
   min-width: 0;
   min-height: 62px;
   border: 3px solid rgba(23, 32, 51, 0.1);
@@ -595,20 +595,20 @@ a {
   transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
-.addition-answer-input.is-correct {
+.arithmetic-answer-input.is-correct {
   border-color: #31a66a;
   background: rgba(49, 166, 106, 0.16);
   box-shadow: 0 12px 28px rgba(49, 166, 106, 0.18);
 }
 
-.addition-answer-input.is-incorrect {
+.arithmetic-answer-input.is-incorrect {
   border-color: #d9487d;
   background: rgba(217, 72, 125, 0.14);
   box-shadow: 0 12px 28px rgba(217, 72, 125, 0.16);
 }
 
-.addition-check-button,
-.addition-new-button {
+.arithmetic-check-button,
+.arithmetic-new-button {
   display: inline-flex;
   min-height: 56px;
   align-items: center;
@@ -622,23 +622,23 @@ a {
   padding: 0 16px;
 }
 
-.addition-check-button {
+.arithmetic-check-button {
   background: var(--color-ink);
   color: #fff;
 }
 
-.addition-check-button:disabled {
+.arithmetic-check-button:disabled {
   cursor: default;
   opacity: 0.6;
 }
 
-.addition-new-button {
+.arithmetic-new-button {
   background: rgba(23, 32, 51, 0.08);
   color: var(--color-ink);
 }
 
-.addition-check-button svg,
-.addition-new-button svg {
+.arithmetic-check-button svg,
+.arithmetic-new-button svg {
   width: 22px;
   height: 22px;
   fill: none;
@@ -677,13 +677,13 @@ a {
     min-height: 104px;
   }
 
-  .addition-input-row {
+  .arithmetic-input-row {
     grid-template-columns: 1fr;
   }
 }
 
 @media (min-width: 680px) {
-  .addition-input-row {
+  .arithmetic-input-row {
     grid-template-columns: minmax(160px, 0.9fr) minmax(150px, auto) minmax(150px, auto);
     align-items: stretch;
   }

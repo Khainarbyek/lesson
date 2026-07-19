@@ -1,34 +1,40 @@
 ---
 import { ChevronLeft } from "lucide-react";
-import { AdditionActivity } from "../../../../../components/AdditionActivity";
+import { ArithmeticActivity } from "../../../../../components/ArithmeticActivity";
 import BaseLayout from "../../../../../layouts/BaseLayout.astro";
 import {
-  getAdditionPracticeCopy,
-  getAdditionRange,
-  getAdditionRangeIds,
+  getArithmeticOperationIds,
+  getArithmeticPracticeCopy,
+  getArithmeticRange,
+  getArithmeticRangeIds,
   getHomeCopy,
-  getLessonById
+  getLessonById,
+  isArithmeticOperationId
 } from "../../../../../lib/content";
 import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../../../lib/locales";
 import { getLocalizedAlternates } from "../../../../../lib/seo";
 
 export function getStaticPaths() {
   return localeCodes.flatMap((locale) =>
-    getAdditionRangeIds().map((rangeId) => ({
-      params: { locale, rangeId }
-    }))
+    getArithmeticOperationIds().flatMap((operationId) =>
+      getArithmeticRangeIds().map((rangeId) => ({
+        params: { locale, operationId, rangeId }
+      }))
+    )
   );
 }
 
 const localeParam = Astro.params.locale;
 const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const operationIdParam = Astro.params.operationId ?? "addition";
+const operationId = isArithmeticOperationId(operationIdParam) ? operationIdParam : "addition";
 const rangeId = Astro.params.rangeId ?? "0-10";
-const range = getAdditionRange(locale, rangeId) ?? getAdditionRange(locale, "0-10");
+const range = getArithmeticRange(locale, operationId, rangeId) ?? getArithmeticRange(locale, operationId, "0-10");
 const homeCopy = getHomeCopy(locale);
 const mathLesson = getLessonById(locale, "math");
-const activityCopy = getAdditionPracticeCopy(locale);
+const activityCopy = getArithmeticPracticeCopy(locale);
 const resolvedRangeId = range?.id ?? "0-10";
-const rangePath = `/lessons/math/addition/${resolvedRangeId}`;
+const rangePath = `/lessons/math/${operationId}/${resolvedRangeId}`;
 ---
 
 <BaseLayout
@@ -38,21 +44,28 @@ const rangePath = `/lessons/math/addition/${resolvedRangeId}`;
   canonicalPath={localizedPath(locale, rangePath)}
   alternateLocales={getLocalizedAlternates(rangePath)}
 >
-  <main class="addition-range-page">
+  <main class="arithmetic-range-page">
     <div class="container-shell lesson-nav">
-      <a href={localizedPath(locale, "/lessons/math/addition")} class="back-link" aria-label={homeCopy.navLessons}>
+      <a href={localizedPath(locale, `/lessons/math/${operationId}`)} class="back-link" aria-label={homeCopy.navLessons}>
         <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2.4} />
       </a>
     </div>
 
     {range && (
-      <AdditionActivity client:load title={range.title} subject={mathLesson?.subject ?? homeCopy.navLessons} range={range} copy={activityCopy} />
+      <ArithmeticActivity
+        client:load
+        operationId={operationId}
+        title={range.title}
+        subject={mathLesson?.subject ?? homeCopy.navLessons}
+        range={range}
+        copy={activityCopy}
+      />
     )}
   </main>
 </BaseLayout>
 
 <style>
-  .addition-range-page {
+  .arithmetic-range-page {
     min-height: 100vh;
     padding: 12px 0 48px;
   }
