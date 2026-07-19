@@ -169,15 +169,13 @@ describe("localized content", () => {
     expect(getLessonById("kk", "animals")?.title).toContain("Жануар");
   });
 
-  it("uses many emoji choices for Kazakh animal friends", () => {
-    const animals = getLessonById("kk", "animals");
-    if (!animals || animals.status !== "playable" || animals.activity.type !== "choice") {
-      throw new Error("Missing Kazakh animals lesson");
-    }
-
-    expect(animals.title).toBe("Жануар достар");
-    expect(animals.activity.prompts).toHaveLength(12);
-    expect(animals.activity.prompts.map((prompt) => prompt.id)).toEqual([
+  it("uses many emoji choices for animal friends in every locale", () => {
+    const expectedTitles = {
+      en: "Animal Friends",
+      ru: "Друзья-животные",
+      kk: "Жануар достар"
+    };
+    const expectedAnimalIds = [
       "animal-cat",
       "animal-dog",
       "animal-horse",
@@ -190,19 +188,30 @@ describe("localized content", () => {
       "animal-lion",
       "animal-elephant",
       "animal-turtle"
-    ]);
+    ];
 
     const plainTextVisual = /^[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\s-]+$/;
-    for (const prompt of animals.activity.prompts) {
-      expect(prompt.choices).toHaveLength(3);
-      expect(prompt.choices.some((choice) => choice.id === prompt.correctChoiceId)).toBe(true);
-      for (const choice of prompt.choices) {
-        expect(choice.label.trim().length).toBeGreaterThan(0);
-        expect(choice.visual).not.toMatch(plainTextVisual);
+    for (const locale of locales) {
+      const animals = getLessonById(locale.code, "animals");
+      if (!animals || animals.status !== "playable" || animals.activity.type !== "choice") {
+        throw new Error(`Missing animals lesson for ${locale.code}`);
       }
-    }
 
-    expect(animals.activity.prompts[0].choices.find((choice) => choice.id === "cat")?.visual).toBe("🐱");
-    expect(animals.activity.prompts.at(-1)?.choices.find((choice) => choice.id === "turtle")?.visual).toBe("🐢");
+      expect(animals.title).toBe(expectedTitles[locale.code]);
+      expect(animals.activity.prompts).toHaveLength(12);
+      expect(animals.activity.prompts.map((prompt) => prompt.id)).toEqual(expectedAnimalIds);
+
+      for (const prompt of animals.activity.prompts) {
+        expect(prompt.choices).toHaveLength(3);
+        expect(prompt.choices.some((choice) => choice.id === prompt.correctChoiceId)).toBe(true);
+        for (const choice of prompt.choices) {
+          expect(choice.label.trim().length).toBeGreaterThan(0);
+          expect(choice.visual).not.toMatch(plainTextVisual);
+        }
+      }
+
+      expect(animals.activity.prompts[0].choices.find((choice) => choice.id === "cat")?.visual).toBe("🐱");
+      expect(animals.activity.prompts.at(-1)?.choices.find((choice) => choice.id === "turtle")?.visual).toBe("🐢");
+    }
   });
 });

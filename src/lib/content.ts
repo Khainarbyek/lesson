@@ -749,6 +749,179 @@ function letterCards(locale: LocaleCode): LetterFlashcard[] {
   return letterCardValues[locale];
 }
 
+type AnimalId =
+  | "cat"
+  | "dog"
+  | "horse"
+  | "cow"
+  | "sheep"
+  | "fish"
+  | "bird"
+  | "rabbit"
+  | "bear"
+  | "lion"
+  | "elephant"
+  | "turtle";
+
+type AnimalLocaleContent = {
+  names: Record<AnimalId, string>;
+  questions: Record<AnimalId, string>;
+};
+
+const animalPromptOrder: AnimalId[] = [
+  "cat",
+  "dog",
+  "horse",
+  "cow",
+  "sheep",
+  "fish",
+  "bird",
+  "rabbit",
+  "bear",
+  "lion",
+  "elephant",
+  "turtle"
+];
+
+const animalVisuals: Record<AnimalId, string> = {
+  cat: "🐱",
+  dog: "🐶",
+  horse: "🐴",
+  cow: "🐮",
+  sheep: "🐑",
+  fish: "🐟",
+  bird: "🐦",
+  rabbit: "🐰",
+  bear: "🐻",
+  lion: "🦁",
+  elephant: "🐘",
+  turtle: "🐢"
+};
+
+const animalChoiceGroups: Record<AnimalId, AnimalId[]> = {
+  cat: ["dog", "cat", "bird"],
+  dog: ["rabbit", "dog", "fish"],
+  horse: ["fish", "bear", "horse"],
+  cow: ["cow", "sheep", "horse"],
+  sheep: ["cow", "sheep", "cat"],
+  fish: ["bird", "fish", "turtle"],
+  bird: ["bird", "rabbit", "dog"],
+  rabbit: ["bear", "rabbit", "lion"],
+  bear: ["bear", "elephant", "cow"],
+  lion: ["cat", "lion", "bear"],
+  elephant: ["elephant", "horse", "turtle"],
+  turtle: ["fish", "turtle", "sheep"]
+};
+
+const animalLocaleContent: Record<LocaleCode, AnimalLocaleContent> = {
+  en: {
+    names: {
+      cat: "Cat",
+      dog: "Dog",
+      horse: "Horse",
+      cow: "Cow",
+      sheep: "Sheep",
+      fish: "Fish",
+      bird: "Bird",
+      rabbit: "Rabbit",
+      bear: "Bear",
+      lion: "Lion",
+      elephant: "Elephant",
+      turtle: "Turtle"
+    },
+    questions: {
+      cat: "Find the cat",
+      dog: "Find the dog",
+      horse: "Find the horse",
+      cow: "Find the cow",
+      sheep: "Find the sheep",
+      fish: "Find the fish",
+      bird: "Find the bird",
+      rabbit: "Find the rabbit",
+      bear: "Find the bear",
+      lion: "Find the lion",
+      elephant: "Find the elephant",
+      turtle: "Find the turtle"
+    }
+  },
+  ru: {
+    names: {
+      cat: "Кошка",
+      dog: "Собака",
+      horse: "Лошадь",
+      cow: "Корова",
+      sheep: "Овца",
+      fish: "Рыба",
+      bird: "Птица",
+      rabbit: "Кролик",
+      bear: "Медведь",
+      lion: "Лев",
+      elephant: "Слон",
+      turtle: "Черепаха"
+    },
+    questions: {
+      cat: "Найди кошку",
+      dog: "Найди собаку",
+      horse: "Найди лошадь",
+      cow: "Найди корову",
+      sheep: "Найди овцу",
+      fish: "Найди рыбу",
+      bird: "Найди птицу",
+      rabbit: "Найди кролика",
+      bear: "Найди медведя",
+      lion: "Найди льва",
+      elephant: "Найди слона",
+      turtle: "Найди черепаху"
+    }
+  },
+  kk: {
+    names: {
+      cat: "Мысық",
+      dog: "Ит",
+      horse: "Жылқы",
+      cow: "Сиыр",
+      sheep: "Қой",
+      fish: "Балық",
+      bird: "Құс",
+      rabbit: "Қоян",
+      bear: "Аю",
+      lion: "Арыстан",
+      elephant: "Піл",
+      turtle: "Тасбақа"
+    },
+    questions: {
+      cat: "Мысықты тап",
+      dog: "Итті тап",
+      horse: "Жылқыны тап",
+      cow: "Сиырды тап",
+      sheep: "Қойды тап",
+      fish: "Балықты тап",
+      bird: "Құсты тап",
+      rabbit: "Қоянды тап",
+      bear: "Аюды тап",
+      lion: "Арыстанды тап",
+      elephant: "Пілді тап",
+      turtle: "Тасбақаны тап"
+    }
+  }
+};
+
+function animalPrompts(locale: LocaleCode): ActivityPrompt[] {
+  const content = animalLocaleContent[locale];
+
+  return animalPromptOrder.map((animalId) => ({
+    id: `animal-${animalId}`,
+    question: content.questions[animalId],
+    target: content.names[animalId],
+    correctChoiceId: animalId,
+    choices: animalChoiceGroups[animalId].map((choiceId) => ({
+      id: choiceId,
+      label: content.names[choiceId],
+      visual: animalVisuals[choiceId]
+    }))
+  }));
+}
+
 const lessons: Record<LocaleCode, Lesson[]> = {
   en: [
     {
@@ -788,30 +961,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
           next: "Next animal",
           progress: "animals matched"
         },
-        prompts: [
-          {
-            id: "animal-cat",
-            question: "Find the cat",
-            target: "Cat",
-            correctChoiceId: "cat",
-            choices: [
-              { id: "dog", label: "Dog", visual: "Dog" },
-              { id: "cat", label: "Cat", visual: "Cat" },
-              { id: "bird", label: "Bird", visual: "Bird" }
-            ]
-          },
-          {
-            id: "animal-horse",
-            question: "Find the horse",
-            target: "Horse",
-            correctChoiceId: "horse",
-            choices: [
-              { id: "fish", label: "Fish", visual: "Fish" },
-              { id: "bear", label: "Bear", visual: "Bear" },
-              { id: "horse", label: "Horse", visual: "Horse" }
-            ]
-          }
-        ]
+        prompts: animalPrompts("en")
       }
     },
     {
@@ -909,30 +1059,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
           next: "Следующее животное",
           progress: "животных найдено"
         },
-        prompts: [
-          {
-            id: "animal-cat",
-            question: "Найди кошку",
-            target: "Кошка",
-            correctChoiceId: "cat",
-            choices: [
-              { id: "dog", label: "Собака", visual: "Собака" },
-              { id: "cat", label: "Кошка", visual: "Кошка" },
-              { id: "bird", label: "Птица", visual: "Птица" }
-            ]
-          },
-          {
-            id: "animal-horse",
-            question: "Найди лошадь",
-            target: "Лошадь",
-            correctChoiceId: "horse",
-            choices: [
-              { id: "fish", label: "Рыба", visual: "Рыба" },
-              { id: "bear", label: "Медведь", visual: "Медведь" },
-              { id: "horse", label: "Лошадь", visual: "Лошадь" }
-            ]
-          }
-        ]
+        prompts: animalPrompts("ru")
       }
     },
     {
@@ -1030,140 +1157,7 @@ const lessons: Record<LocaleCode, Lesson[]> = {
           next: "Келесі жануар",
           progress: "жануар табылды"
         },
-        prompts: [
-          {
-            id: "animal-cat",
-            question: "Мысықты тап",
-            target: "Мысық",
-            correctChoiceId: "cat",
-            choices: [
-              { id: "dog", label: "Ит", visual: "🐶" },
-              { id: "cat", label: "Мысық", visual: "🐱" },
-              { id: "bird", label: "Құс", visual: "🐦" }
-            ]
-          },
-          {
-            id: "animal-dog",
-            question: "Итті тап",
-            target: "Ит",
-            correctChoiceId: "dog",
-            choices: [
-              { id: "rabbit", label: "Қоян", visual: "🐰" },
-              { id: "dog", label: "Ит", visual: "🐶" },
-              { id: "fish", label: "Балық", visual: "🐟" }
-            ]
-          },
-          {
-            id: "animal-horse",
-            question: "Жылқыны тап",
-            target: "Жылқы",
-            correctChoiceId: "horse",
-            choices: [
-              { id: "fish", label: "Балық", visual: "🐟" },
-              { id: "bear", label: "Аю", visual: "🐻" },
-              { id: "horse", label: "Жылқы", visual: "🐴" }
-            ]
-          },
-          {
-            id: "animal-cow",
-            question: "Сиырды тап",
-            target: "Сиыр",
-            correctChoiceId: "cow",
-            choices: [
-              { id: "cow", label: "Сиыр", visual: "🐮" },
-              { id: "sheep", label: "Қой", visual: "🐑" },
-              { id: "horse", label: "Жылқы", visual: "🐴" }
-            ]
-          },
-          {
-            id: "animal-sheep",
-            question: "Қойды тап",
-            target: "Қой",
-            correctChoiceId: "sheep",
-            choices: [
-              { id: "cow", label: "Сиыр", visual: "🐮" },
-              { id: "sheep", label: "Қой", visual: "🐑" },
-              { id: "cat", label: "Мысық", visual: "🐱" }
-            ]
-          },
-          {
-            id: "animal-fish",
-            question: "Балықты тап",
-            target: "Балық",
-            correctChoiceId: "fish",
-            choices: [
-              { id: "bird", label: "Құс", visual: "🐦" },
-              { id: "fish", label: "Балық", visual: "🐟" },
-              { id: "turtle", label: "Тасбақа", visual: "🐢" }
-            ]
-          },
-          {
-            id: "animal-bird",
-            question: "Құсты тап",
-            target: "Құс",
-            correctChoiceId: "bird",
-            choices: [
-              { id: "bird", label: "Құс", visual: "🐦" },
-              { id: "rabbit", label: "Қоян", visual: "🐰" },
-              { id: "dog", label: "Ит", visual: "🐶" }
-            ]
-          },
-          {
-            id: "animal-rabbit",
-            question: "Қоянды тап",
-            target: "Қоян",
-            correctChoiceId: "rabbit",
-            choices: [
-              { id: "bear", label: "Аю", visual: "🐻" },
-              { id: "rabbit", label: "Қоян", visual: "🐰" },
-              { id: "lion", label: "Арыстан", visual: "🦁" }
-            ]
-          },
-          {
-            id: "animal-bear",
-            question: "Аюды тап",
-            target: "Аю",
-            correctChoiceId: "bear",
-            choices: [
-              { id: "bear", label: "Аю", visual: "🐻" },
-              { id: "elephant", label: "Піл", visual: "🐘" },
-              { id: "cow", label: "Сиыр", visual: "🐮" }
-            ]
-          },
-          {
-            id: "animal-lion",
-            question: "Арыстанды тап",
-            target: "Арыстан",
-            correctChoiceId: "lion",
-            choices: [
-              { id: "cat", label: "Мысық", visual: "🐱" },
-              { id: "lion", label: "Арыстан", visual: "🦁" },
-              { id: "bear", label: "Аю", visual: "🐻" }
-            ]
-          },
-          {
-            id: "animal-elephant",
-            question: "Пілді тап",
-            target: "Піл",
-            correctChoiceId: "elephant",
-            choices: [
-              { id: "elephant", label: "Піл", visual: "🐘" },
-              { id: "horse", label: "Жылқы", visual: "🐴" },
-              { id: "turtle", label: "Тасбақа", visual: "🐢" }
-            ]
-          },
-          {
-            id: "animal-turtle",
-            question: "Тасбақаны тап",
-            target: "Тасбақа",
-            correctChoiceId: "turtle",
-            choices: [
-              { id: "fish", label: "Балық", visual: "🐟" },
-              { id: "turtle", label: "Тасбақа", visual: "🐢" },
-              { id: "sheep", label: "Қой", visual: "🐑" }
-            ]
-          }
-        ]
+        prompts: animalPrompts("kk")
       }
     },
     {

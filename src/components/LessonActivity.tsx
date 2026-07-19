@@ -135,11 +135,6 @@ export function LessonActivity({ lesson }: Props) {
 
     return null;
   }, [lesson.activity]);
-  const progressText = useMemo(
-    () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
-    [lesson.activity.copy.progress, progress.attempts, progress.correct]
-  );
-
   useEffect(() => {
     setProgress(getLessonProgress(lesson.id));
   }, [lesson.id]);
@@ -527,6 +522,7 @@ export function LessonActivity({ lesson }: Props) {
 
   const activity = lesson.activity;
   const prompt = activity.prompts[promptIndex];
+  const choiceProgressText = `${promptIndex + 1}/${activity.prompts.length} ${activity.copy.progress}`;
 
   function answer(choiceId: string) {
     const isCorrect = choiceId === prompt.correctChoiceId;
@@ -552,7 +548,7 @@ export function LessonActivity({ lesson }: Props) {
           <p className="activity-kicker">{lesson.subject}</p>
           <h2 id="activity-title">{lesson.title}</h2>
         </div>
-        <span className="activity-progress">{progressText}</span>
+        <span className="activity-progress">{choiceProgressText}</span>
       </div>
 
       <div className="prompt-card">

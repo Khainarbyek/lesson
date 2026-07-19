@@ -1,9 +1,10 @@
 import "@testing-library/jest-dom/vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LessonActivity } from "../components/LessonActivity";
 import { getLessonById, getNumberRangeLesson } from "../lib/content";
 import { getTraceOcrConfig, scoreTraceByOCR, warmUpOcrWorker, type OcrTraceScore, type TraceOcrConfig } from "../lib/ocrTrace";
+import { saveLessonProgress } from "../lib/progress";
 
 const digitOcrConfig: TraceOcrConfig = {
   languages: ["eng"],
@@ -89,6 +90,7 @@ function drawTouchStroke(canvas: HTMLCanvasElement, points: Array<{ x: number; y
 }
 
 beforeEach(() => {
+  localStorage.clear();
   speechSynthesisMock.cancel.mockClear();
   speechSynthesisMock.speak.mockClear();
   getTraceOcrConfigMock.mockClear();
@@ -146,6 +148,21 @@ describe("LessonActivity", () => {
     expect(screen.getByText("Мысықты тап")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Мысық" })).toHaveTextContent("🐱");
     expect(screen.getByRole("button", { name: "Ит" })).toHaveTextContent("🐶");
+  });
+
+  it("shows choice card position instead of lifetime saved attempts", async () => {
+    const lesson = getLessonById("en", "animals");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "choice") {
+      throw new Error("Missing animals lesson");
+    }
+
+    saveLessonProgress("animals", { correct: 36, attempts: 45 });
+    render(<LessonActivity lesson={lesson} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("1/12 animals matched")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("36/45 animals matched")).not.toBeInTheDocument();
   });
 
   it("renders number flashcards for the math lesson", () => {
