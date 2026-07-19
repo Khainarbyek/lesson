@@ -148,7 +148,7 @@ describe("LessonActivity", () => {
     expect(screen.getByText("2/12 animals matched")).toBeInTheDocument();
   });
 
-  it("highlights an incorrect choice in red before advancing", () => {
+  it("highlights an incorrect choice in red before resetting the same prompt", () => {
     vi.useFakeTimers();
     const lesson = getLessonById("en", "animals");
     if (!lesson || lesson.status !== "playable") {
@@ -162,6 +162,18 @@ describe("LessonActivity", () => {
     expect(dog).toHaveClass("is-selected", "is-incorrect");
     expect(dog).toBeDisabled();
     expect(screen.getByText(/Try again/i)).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(900);
+    });
+
+    expect(screen.getByText("Find the cat")).toBeInTheDocument();
+    expect(screen.getByText("1/12 animals matched")).toBeInTheDocument();
+    expect(dog).not.toHaveClass("is-selected", "is-incorrect");
+    expect(dog).toBeEnabled();
+    expect(screen.queryByText(/Try again/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Cat/i }));
 
     act(() => {
       vi.advanceTimersByTime(900);

@@ -18,7 +18,7 @@ type CanvasPoint = {
   y: number;
 };
 
-const CHOICE_ADVANCE_DELAY_MS = 900;
+const CHOICE_FEEDBACK_DELAY_MS = 900;
 
 function getCanvasContext(canvas: HTMLCanvasElement) {
   try {
@@ -577,7 +577,15 @@ export function LessonActivity({ lesson }: Props) {
     saveLessonProgress(lesson.id, nextProgress);
     setFeedback(isCorrect ? "correct" : "incorrect");
     clearChoiceAdvanceTimeout();
-    choiceAdvanceTimeoutRef.current = window.setTimeout(nextPrompt, CHOICE_ADVANCE_DELAY_MS);
+    choiceAdvanceTimeoutRef.current = window.setTimeout(() => {
+      if (isCorrect) {
+        nextPrompt();
+        return;
+      }
+
+      resetChoiceAnswerState();
+      choiceAdvanceTimeoutRef.current = null;
+    }, CHOICE_FEEDBACK_DELAY_MS);
   }
 
   function nextPrompt() {
