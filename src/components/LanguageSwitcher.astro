@@ -11,13 +11,11 @@ type Props = {
 const { currentLocale, currentPath = "/", copy } = Astro.props;
 const stripLocale = currentPath.replace(/^\/(kk|ru|en)/, "") || "/";
 const languageCodes: LocaleCode[] = ["kk", "ru", "en"];
-const brandMark = copy.productName.slice(0, 1);
 ---
 
 <header class="site-header container-shell" aria-label="Primary navigation">
   <a class="brand" href={localizedPath(currentLocale, "/")} aria-label={copy.productName}>
-    <span class="brand-mark" aria-hidden="true">{brandMark}</span>
-    <span>{copy.productName}</span>
+    <img class="brand-logo" src="/media/brand/uyren-logo.svg" alt="" width="180" height="48" aria-hidden="true" />
   </a>
 
   <nav class="nav-links" aria-label="Language">
@@ -44,22 +42,13 @@ const brandMark = copy.productName.slice(0, 1);
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
     min-height: 48px;
-    font-family: var(--font-display);
-    font-size: clamp(1.05rem, 2vw, 1.35rem);
-    font-weight: 900;
   }
 
-  .brand-mark {
-    display: grid;
-    width: 42px;
-    height: 42px;
-    place-items: center;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--color-sky), var(--color-berry));
-    color: #fff;
-    box-shadow: var(--shadow-card);
+  .brand-logo {
+    display: block;
+    width: clamp(138px, 35vw, 180px);
+    height: auto;
   }
 
   .nav-links {
