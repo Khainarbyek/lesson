@@ -18,6 +18,8 @@ type CanvasPoint = {
   y: number;
 };
 
+const CHOICE_ADVANCE_DELAY_MS = 900;
+
 function getCanvasContext(canvas: HTMLCanvasElement) {
   try {
     return canvas.getContext("2d");
@@ -118,12 +120,15 @@ export function LessonActivity({ lesson }: Props) {
   const [promptIndex, setPromptIndex] = useState(0);
   const [cardIndex, setCardIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [traceFeedback, setTraceFeedback] = useState<TraceFeedback>(null);
   const [progress, setProgress] = useState<LessonProgress>(() => ({ correct: 0, attempts: 0 }));
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingActiveRef = useRef(false);
   const drawingStrokesRef = useRef<TraceStroke[]>([]);
   const traceCheckIdRef = useRef(0);
+  const choiceAdvanceTimeoutRef = useRef<number | null>(null);
+  const choiceLockedRef = useRef(false);
   const traceOcrConfig = useMemo(() => {
     if (lesson.activity.type === "number-flashcards") {
       return getTraceOcrConfig({ kind: "number" });
@@ -138,6 +143,37 @@ export function LessonActivity({ lesson }: Props) {
   useEffect(() => {
     setProgress(getLessonProgress(lesson.id));
   }, [lesson.id]);
+
+  function clearChoiceAdvanceTimeout() {
+    if (choiceAdvanceTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(choiceAdvanceTimeoutRef.current);
+    choiceAdvanceTimeoutRef.current = null;
+  }
+
+  function resetChoiceAnswerState() {
+    choiceLockedRef.current = false;
+    setSelectedChoiceId(null);
+    setFeedback(null);
+  }
+
+  useEffect(() => {
+    return () => {
+      clearChoiceAdvanceTimeout();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (lesson.activity.type !== "choice") {
+      return;
+    }
+
+    clearChoiceAdvanceTimeout();
+    setPromptIndex(0);
+    resetChoiceAnswerState();
+  }, [lesson.id, lesson.activity.type]);
 
   function resetTraceState() {
     traceCheckIdRef.current += 1;
@@ -525,20 +561,29 @@ export function LessonActivity({ lesson }: Props) {
   const choiceProgressText = `${promptIndex + 1}/${activity.prompts.length} ${activity.copy.progress}`;
 
   function answer(choiceId: string) {
+    if (choiceLockedRef.current) {
+      return;
+    }
+
     const isCorrect = choiceId === prompt.correctChoiceId;
     const nextProgress = {
       correct: progress.correct + (isCorrect ? 1 : 0),
       attempts: progress.attempts + 1
     };
 
+    choiceLockedRef.current = true;
+    setSelectedChoiceId(choiceId);
     setProgress(nextProgress);
     saveLessonProgress(lesson.id, nextProgress);
     setFeedback(isCorrect ? "correct" : "incorrect");
+    clearChoiceAdvanceTimeout();
+    choiceAdvanceTimeoutRef.current = window.setTimeout(nextPrompt, CHOICE_ADVANCE_DELAY_MS);
   }
 
   function nextPrompt() {
     setPromptIndex((current) => (current + 1) % activity.prompts.length);
-    setFeedback(null);
+    resetChoiceAnswerState();
+    choiceAdvanceTimeoutRef.current = null;
   }
 
   return (
@@ -559,30 +604,35 @@ export function LessonActivity({ lesson }: Props) {
       </div>
 
       <div className="choice-grid">
-        {prompt.choices.map((choice) => (
-          <button
-            className="choice-button"
-            key={choice.id}
-            type="button"
-            onClick={() => answer(choice.id)}
-          >
-            <span className="choice-visual" aria-hidden="true">
-              {choice.visual}
-            </span>
-            <span>{choice.label}</span>
-          </button>
-        ))}
+        {prompt.choices.map((choice) => {
+          const isSelected = selectedChoiceId === choice.id;
+          const selectedStateClass =
+            isSelected && feedback === "correct"
+              ? " is-selected is-correct"
+              : isSelected && feedback === "incorrect"
+                ? " is-selected is-incorrect"
+                : "";
+
+          return (
+            <button
+              className={`choice-button${selectedStateClass}`}
+              disabled={selectedChoiceId !== null}
+              key={choice.id}
+              type="button"
+              onClick={() => answer(choice.id)}
+              aria-pressed={isSelected}
+            >
+              <span className="choice-visual" aria-hidden="true">
+                {choice.visual}
+              </span>
+              <span>{choice.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="feedback-row" aria-live="polite">
-        {feedback === "correct" && (
-          <>
-            <p className="feedback correct">{lesson.activity.copy.correct}</p>
-            <button className="next-button" type="button" onClick={nextPrompt}>
-              {lesson.activity.copy.next}
-            </button>
-          </>
-        )}
+        {feedback === "correct" && <p className="feedback correct">{lesson.activity.copy.correct}</p>}
         {feedback === "incorrect" && <p className="feedback incorrect">{lesson.activity.copy.incorrect}</p>}
       </div>
     </section>

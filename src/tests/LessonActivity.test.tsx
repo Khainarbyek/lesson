@@ -109,6 +109,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
 });
 
 describe("LessonActivity", () => {
@@ -122,6 +123,52 @@ describe("LessonActivity", () => {
     fireEvent.click(screen.getByRole("button", { name: /Cat/i }));
 
     expect(screen.getByText(/Great job/i)).toBeInTheDocument();
+  });
+
+  it("highlights a correct choice in green before advancing", () => {
+    vi.useFakeTimers();
+    const lesson = getLessonById("en", "animals");
+    if (!lesson || lesson.status !== "playable") {
+      throw new Error("Missing animals lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+    const cat = screen.getByRole("button", { name: /Cat/i });
+    fireEvent.click(cat);
+
+    expect(cat).toHaveClass("is-selected", "is-correct");
+    expect(cat).toBeDisabled();
+    expect(screen.getByText("Find the cat")).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(900);
+    });
+
+    expect(screen.getByText("Find the dog")).toBeInTheDocument();
+    expect(screen.getByText("2/12 animals matched")).toBeInTheDocument();
+  });
+
+  it("highlights an incorrect choice in red before advancing", () => {
+    vi.useFakeTimers();
+    const lesson = getLessonById("en", "animals");
+    if (!lesson || lesson.status !== "playable") {
+      throw new Error("Missing animals lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+    const dog = screen.getByRole("button", { name: /Dog/i });
+    fireEvent.click(dog);
+
+    expect(dog).toHaveClass("is-selected", "is-incorrect");
+    expect(dog).toBeDisabled();
+    expect(screen.getByText(/Try again/i)).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(900);
+    });
+
+    expect(screen.getByText("Find the dog")).toBeInTheDocument();
+    expect(screen.getByText("2/12 animals matched")).toBeInTheDocument();
   });
 
   it("shows try-again feedback for an incorrect answer", () => {

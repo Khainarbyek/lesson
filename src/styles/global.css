@@ -192,6 +192,30 @@ a {
   transform: translateY(-2px);
 }
 
+.choice-button:disabled {
+  cursor: default;
+}
+
+.choice-button:disabled:hover {
+  transform: none;
+}
+
+.choice-button:disabled:not(.is-selected) {
+  opacity: 0.68;
+}
+
+.choice-button.is-correct {
+  border-color: #31a66a;
+  background: rgba(49, 166, 106, 0.18);
+  box-shadow: 0 16px 34px rgba(49, 166, 106, 0.22);
+}
+
+.choice-button.is-incorrect {
+  border-color: #d9487d;
+  background: rgba(217, 72, 125, 0.16);
+  box-shadow: 0 16px 34px rgba(217, 72, 125, 0.2);
+}
+
 .choice-visual {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 6vw, 3rem);
