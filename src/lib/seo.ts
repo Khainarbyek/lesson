@@ -7,7 +7,10 @@ export type LocaleAlternate = {
 };
 
 export const siteUrl = "https://uyren.netlify.app";
-export const defaultSocialImage = "/media/social/uyren-og.svg";
+export const defaultSocialImage = "/media/social/uyren-og.jpg";
+export const socialImageHeight = 630;
+export const socialImageType = "image/jpeg";
+export const socialImageWidth = 1200;
 
 export function getCanonicalUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
