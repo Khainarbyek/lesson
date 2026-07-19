@@ -14,6 +14,7 @@ export type NumberRangeId =
   | "71-80"
   | "81-90"
   | "91-100";
+export type AdditionRangeId = "0-10" | "0-100";
 
 export type LocaleMeta = {
   code: LocaleCode;
@@ -50,7 +51,7 @@ export type AgeRange = {
 };
 
 export type MathTopic = {
-  id: "numbers";
+  id: "numbers" | "addition";
   title: string;
   description: string;
   icon: string;
@@ -69,6 +70,32 @@ export type NumberRange = {
   route: string;
   start: number;
   end: number;
+};
+
+export type AdditionRange = {
+  id: AdditionRangeId;
+  label: string;
+  title: string;
+  description: string;
+  route: string;
+  min: number;
+  max: number;
+};
+
+export type AdditionTopicCopy = {
+  title: string;
+  lead: string;
+};
+
+export type AdditionPracticeCopy = {
+  title: string;
+  answerLabel: string;
+  checkAnswer: string;
+  newProblem: string;
+  correct: string;
+  incorrect: string;
+  progress: string;
+  placeholder: string;
 };
 
 export type ActivityChoice = {
@@ -305,6 +332,11 @@ const numberRangeDefinitions: Array<{ id: NumberRangeId; start: number; end: num
   { id: "91-100", start: 91, end: 100 }
 ];
 
+const additionRangeDefinitions: Array<{ id: AdditionRangeId; min: number; max: number }> = [
+  { id: "0-10", min: 0, max: 10 },
+  { id: "0-100", min: 0, max: 100 }
+];
+
 const baseNumberWords: Record<LocaleCode, string[]> = {
   en: [
     "zero",
@@ -518,28 +550,103 @@ const numbersTopicCopy: Record<LocaleCode, NumbersTopicCopy> = {
   }
 };
 
-const mathTopicCopy: Record<LocaleCode, MathTopic> = {
+const additionTopicCopy: Record<LocaleCode, AdditionTopicCopy> = {
   en: {
-    id: "numbers",
-    title: "Numbers",
-    description: "Start with 0-10, then move through 11-20 and the next number ranges.",
-    icon: "123",
-    route: localizedPath("en", "/lessons/math/numbers")
+    title: "Addition",
+    lead: "Choose a practice range. A new plus problem appears every time."
   },
   ru: {
-    id: "numbers",
-    title: "Числа",
-    description: "Начни с 0-10, затем переходи к 11-20 и следующим диапазонам.",
-    icon: "123",
-    route: localizedPath("ru", "/lessons/math/numbers")
+    title: "Сложение",
+    lead: "Выбери диапазон. Каждый раз появится новый пример на плюс."
   },
   kk: {
-    id: "numbers",
-    title: "Сандар",
-    description: "0-10 сандарынан бастап, 11-20 және келесі аралықтарға өт.",
-    icon: "123",
-    route: localizedPath("kk", "/lessons/math/numbers")
+    title: "Қосу",
+    lead: "Жаттығу аралығын таңда. Әр жолы жаңа қосу есебі шығады."
   }
+};
+
+const additionPracticeCopy: Record<LocaleCode, AdditionPracticeCopy> = {
+  en: {
+    title: "Type the answer",
+    answerLabel: "Answer",
+    checkAnswer: "Check answer",
+    newProblem: "New problem",
+    correct: "Great job!",
+    incorrect: "Try again.",
+    progress: "correct",
+    placeholder: "Type number"
+  },
+  ru: {
+    title: "Введи ответ",
+    answerLabel: "Ответ",
+    checkAnswer: "Проверить",
+    newProblem: "Новый пример",
+    correct: "Отлично!",
+    incorrect: "Попробуй еще раз.",
+    progress: "верно",
+    placeholder: "Введи число"
+  },
+  kk: {
+    title: "Жауапты жаз",
+    answerLabel: "Жауап",
+    checkAnswer: "Тексеру",
+    newProblem: "Жаңа есеп",
+    correct: "Жарайсың!",
+    incorrect: "Тағы байқап көр.",
+    progress: "дұрыс",
+    placeholder: "Санды жаз"
+  }
+};
+
+const mathTopicCopy: Record<LocaleCode, MathTopic[]> = {
+  en: [
+    {
+      id: "numbers",
+      title: "Numbers",
+      description: "Start with 0-10, then move through 11-20 and the next number ranges.",
+      icon: "123",
+      route: localizedPath("en", "/lessons/math/numbers")
+    },
+    {
+      id: "addition",
+      title: "Addition",
+      description: "Solve random plus problems and type the answer.",
+      icon: "+",
+      route: localizedPath("en", "/lessons/math/addition")
+    }
+  ],
+  ru: [
+    {
+      id: "numbers",
+      title: "Числа",
+      description: "Начни с 0-10, затем переходи к 11-20 и следующим диапазонам.",
+      icon: "123",
+      route: localizedPath("ru", "/lessons/math/numbers")
+    },
+    {
+      id: "addition",
+      title: "Сложение",
+      description: "Решай случайные примеры на плюс и вводи ответ.",
+      icon: "+",
+      route: localizedPath("ru", "/lessons/math/addition")
+    }
+  ],
+  kk: [
+    {
+      id: "numbers",
+      title: "Сандар",
+      description: "0-10 сандарынан бастап, 11-20 және келесі аралықтарға өт.",
+      icon: "123",
+      route: localizedPath("kk", "/lessons/math/numbers")
+    },
+    {
+      id: "addition",
+      title: "Қосу",
+      description: "Кездейсоқ қосу есептерін шығарып, жауапты жаз.",
+      icon: "+",
+      route: localizedPath("kk", "/lessons/math/addition")
+    }
+  ]
 };
 
 function numberWord(locale: LocaleCode, value: number): string {
@@ -610,6 +717,30 @@ function numberRangeDescription(locale: LocaleCode, range: { id: NumberRangeId }
   }
 
   return `${range.id} сандарын тыңдап, алма санап, сызуды жаттықтыр.`;
+}
+
+function additionRangeTitle(locale: LocaleCode, range: { id: AdditionRangeId }): string {
+  if (locale === "en") {
+    return `Addition ${range.id}`;
+  }
+
+  if (locale === "ru") {
+    return `Сложение ${range.id}`;
+  }
+
+  return `${range.id} қосу`;
+}
+
+function additionRangeDescription(locale: LocaleCode, range: { id: AdditionRangeId; min: number; max: number }): string {
+  if (locale === "en") {
+    return `Add two random numbers from ${range.min} to ${range.max}.`;
+  }
+
+  if (locale === "ru") {
+    return `Складывай два случайных числа от ${range.min} до ${range.max}.`;
+  }
+
+  return `${range.min}-ден ${range.max}-ге дейінгі екі кездейсоқ санды қос.`;
 }
 
 function numberCards(locale: LocaleCode, start = 0, end = 10): NumberFlashcard[] {
@@ -1240,11 +1371,19 @@ export function getLessonIds(): LessonId[] {
 }
 
 export function getMathTopics(locale: LocaleCode): MathTopic[] {
-  return [mathTopicCopy[locale]];
+  return mathTopicCopy[locale];
 }
 
 export function getNumbersTopicCopy(locale: LocaleCode): NumbersTopicCopy {
   return numbersTopicCopy[locale];
+}
+
+export function getAdditionTopicCopy(locale: LocaleCode): AdditionTopicCopy {
+  return additionTopicCopy[locale];
+}
+
+export function getAdditionPracticeCopy(locale: LocaleCode): AdditionPracticeCopy {
+  return additionPracticeCopy[locale];
 }
 
 export function getNumberRangeIds(): NumberRangeId[] {
@@ -1258,6 +1397,24 @@ export function getNumberRanges(locale: LocaleCode): NumberRange[] {
     description: numberRangeDescription(locale, range),
     route: localizedPath(locale, `/lessons/math/numbers/${range.id}`)
   }));
+}
+
+export function getAdditionRangeIds(): AdditionRangeId[] {
+  return additionRangeDefinitions.map((range) => range.id);
+}
+
+export function getAdditionRanges(locale: LocaleCode): AdditionRange[] {
+  return additionRangeDefinitions.map((range) => ({
+    ...range,
+    label: range.id,
+    title: additionRangeTitle(locale, range),
+    description: additionRangeDescription(locale, range),
+    route: localizedPath(locale, `/lessons/math/addition/${range.id}`)
+  }));
+}
+
+export function getAdditionRange(locale: LocaleCode, rangeId: string): AdditionRange | undefined {
+  return getAdditionRanges(locale).find((range) => range.id === rangeId);
 }
 
 export function getNumberRangeLesson(locale: LocaleCode, rangeId: string): PlayableLesson | undefined {

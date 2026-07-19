@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { getHomeCopy, getLessonById, getLessons, getNumberRangeLesson, getNumberRanges, locales } from "../lib/content";
+import {
+  getAdditionPracticeCopy,
+  getAdditionRange,
+  getAdditionRanges,
+  getAdditionTopicCopy,
+  getHomeCopy,
+  getLessonById,
+  getLessons,
+  getMathTopics,
+  getNumberRangeLesson,
+  getNumberRanges,
+  locales
+} from "../lib/content";
 import { defaultLocale } from "../lib/locales";
 
 describe("localized content", () => {
@@ -46,6 +58,18 @@ describe("localized content", () => {
     }
 
     expect(math.activity.type).toBe("number-flashcards");
+  });
+
+  it("adds Addition as a second Math topic", () => {
+    const topics = getMathTopics("en");
+
+    expect(topics.map((topic) => topic.id)).toEqual(["numbers", "addition"]);
+    expect(topics[1]).toMatchObject({
+      title: "Addition",
+      icon: "+",
+      route: "/en/lessons/math/addition"
+    });
+    expect(getAdditionTopicCopy("en").title).toBe("Addition");
   });
 
   it("marks Alphabet as playable letter flashcards in each locale", () => {
@@ -154,6 +178,30 @@ describe("localized content", () => {
         expect(card.objectsLabel.trim().length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it("defines addition practice ranges from 0-10 and 0-100", () => {
+    const ranges = getAdditionRanges("en");
+
+    expect(ranges.map((range) => range.id)).toEqual(["0-10", "0-100"]);
+    expect(ranges[0]).toMatchObject({
+      min: 0,
+      max: 10,
+      route: "/en/lessons/math/addition/0-10",
+      title: "Addition 0-10"
+    });
+    expect(ranges[1]).toMatchObject({
+      min: 0,
+      max: 100,
+      route: "/en/lessons/math/addition/0-100",
+      title: "Addition 0-100"
+    });
+    expect(getAdditionPracticeCopy("en").checkAnswer).toBe("Check answer");
+  });
+
+  it("builds localized addition ranges", () => {
+    expect(getAdditionRange("ru", "0-100")?.description).toContain("100");
+    expect(getAdditionRange("kk", "0-10")?.title).toBe("0-10 қосу");
   });
 
   it("defines lesson image metadata for every locale", () => {

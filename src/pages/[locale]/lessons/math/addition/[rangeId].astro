@@ -1,0 +1,79 @@
+---
+import { ChevronLeft } from "lucide-react";
+import { AdditionActivity } from "../../../../../components/AdditionActivity";
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import {
+  getAdditionPracticeCopy,
+  getAdditionRange,
+  getAdditionRangeIds,
+  getHomeCopy,
+  getLessonById
+} from "../../../../../lib/content";
+import { defaultLocale, isLocaleCode, localeCodes, localizedPath, type LocaleCode } from "../../../../../lib/locales";
+import { getLocalizedAlternates } from "../../../../../lib/seo";
+
+export function getStaticPaths() {
+  return localeCodes.flatMap((locale) =>
+    getAdditionRangeIds().map((rangeId) => ({
+      params: { locale, rangeId }
+    }))
+  );
+}
+
+const localeParam = Astro.params.locale;
+const locale: LocaleCode = isLocaleCode(localeParam) ? localeParam : defaultLocale;
+const rangeId = Astro.params.rangeId ?? "0-10";
+const range = getAdditionRange(locale, rangeId) ?? getAdditionRange(locale, "0-10");
+const homeCopy = getHomeCopy(locale);
+const mathLesson = getLessonById(locale, "math");
+const activityCopy = getAdditionPracticeCopy(locale);
+const resolvedRangeId = range?.id ?? "0-10";
+const rangePath = `/lessons/math/addition/${resolvedRangeId}`;
+---
+
+<BaseLayout
+  title={`${range?.title ?? homeCopy.productName} - ${homeCopy.productName}`}
+  description={range?.description ?? homeCopy.heroSubtitle}
+  locale={locale}
+  canonicalPath={localizedPath(locale, rangePath)}
+  alternateLocales={getLocalizedAlternates(rangePath)}
+>
+  <main class="addition-range-page">
+    <div class="container-shell lesson-nav">
+      <a href={localizedPath(locale, "/lessons/math/addition")} class="back-link" aria-label={homeCopy.navLessons}>
+        <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2.4} />
+      </a>
+    </div>
+
+    {range && (
+      <AdditionActivity client:load title={range.title} subject={mathLesson?.subject ?? homeCopy.navLessons} range={range} copy={activityCopy} />
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .addition-range-page {
+    min-height: 100vh;
+    padding: 12px 0 48px;
+  }
+
+  .lesson-nav {
+    margin-bottom: 8px;
+  }
+
+  .back-link {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(23, 32, 51, 0.76);
+    box-shadow: var(--shadow-card);
+  }
+
+  .back-link svg {
+    width: 24px;
+    height: 24px;
+  }
+</style>
