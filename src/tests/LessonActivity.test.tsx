@@ -134,6 +134,20 @@ describe("LessonActivity", () => {
     expect(screen.getByText(/Try again/i)).toBeInTheDocument();
   });
 
+  it("renders Kazakh animal friends with emoji choices", () => {
+    const lesson = getLessonById("kk", "animals");
+    if (!lesson || lesson.status !== "playable" || lesson.activity.type !== "choice") {
+      throw new Error("Missing Kazakh animals lesson");
+    }
+
+    render(<LessonActivity lesson={lesson} />);
+
+    expect(screen.getByRole("heading", { name: "Жануар достар" })).toBeInTheDocument();
+    expect(screen.getByText("Мысықты тап")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Мысық" })).toHaveTextContent("🐱");
+    expect(screen.getByRole("button", { name: "Ит" })).toHaveTextContent("🐶");
+  });
+
   it("renders number flashcards for the math lesson", () => {
     const lesson = getLessonById("en", "math");
     if (!lesson || lesson.status !== "playable") {

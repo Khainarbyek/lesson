@@ -119,7 +119,7 @@ export function LessonActivity({ lesson }: Props) {
   const [cardIndex, setCardIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [traceFeedback, setTraceFeedback] = useState<TraceFeedback>(null);
-  const [progress, setProgress] = useState<LessonProgress>(() => getLessonProgress(lesson.id));
+  const [progress, setProgress] = useState<LessonProgress>(() => ({ correct: 0, attempts: 0 }));
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingActiveRef = useRef(false);
   const drawingStrokesRef = useRef<TraceStroke[]>([]);
@@ -139,6 +139,10 @@ export function LessonActivity({ lesson }: Props) {
     () => `${progress.correct}/${progress.attempts} ${lesson.activity.copy.progress}`,
     [lesson.activity.copy.progress, progress.attempts, progress.correct]
   );
+
+  useEffect(() => {
+    setProgress(getLessonProgress(lesson.id));
+  }, [lesson.id]);
 
   function resetTraceState() {
     traceCheckIdRef.current += 1;

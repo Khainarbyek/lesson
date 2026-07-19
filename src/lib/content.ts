@@ -1037,9 +1037,20 @@ const lessons: Record<LocaleCode, Lesson[]> = {
             target: "Мысық",
             correctChoiceId: "cat",
             choices: [
-              { id: "dog", label: "Ит", visual: "Ит" },
-              { id: "cat", label: "Мысық", visual: "Мысық" },
-              { id: "bird", label: "Құс", visual: "Құс" }
+              { id: "dog", label: "Ит", visual: "🐶" },
+              { id: "cat", label: "Мысық", visual: "🐱" },
+              { id: "bird", label: "Құс", visual: "🐦" }
+            ]
+          },
+          {
+            id: "animal-dog",
+            question: "Итті тап",
+            target: "Ит",
+            correctChoiceId: "dog",
+            choices: [
+              { id: "rabbit", label: "Қоян", visual: "🐰" },
+              { id: "dog", label: "Ит", visual: "🐶" },
+              { id: "fish", label: "Балық", visual: "🐟" }
             ]
           },
           {
@@ -1048,9 +1059,108 @@ const lessons: Record<LocaleCode, Lesson[]> = {
             target: "Жылқы",
             correctChoiceId: "horse",
             choices: [
-              { id: "fish", label: "Балық", visual: "Балық" },
-              { id: "bear", label: "Аю", visual: "Аю" },
-              { id: "horse", label: "Жылқы", visual: "Жылқы" }
+              { id: "fish", label: "Балық", visual: "🐟" },
+              { id: "bear", label: "Аю", visual: "🐻" },
+              { id: "horse", label: "Жылқы", visual: "🐴" }
+            ]
+          },
+          {
+            id: "animal-cow",
+            question: "Сиырды тап",
+            target: "Сиыр",
+            correctChoiceId: "cow",
+            choices: [
+              { id: "cow", label: "Сиыр", visual: "🐮" },
+              { id: "sheep", label: "Қой", visual: "🐑" },
+              { id: "horse", label: "Жылқы", visual: "🐴" }
+            ]
+          },
+          {
+            id: "animal-sheep",
+            question: "Қойды тап",
+            target: "Қой",
+            correctChoiceId: "sheep",
+            choices: [
+              { id: "cow", label: "Сиыр", visual: "🐮" },
+              { id: "sheep", label: "Қой", visual: "🐑" },
+              { id: "cat", label: "Мысық", visual: "🐱" }
+            ]
+          },
+          {
+            id: "animal-fish",
+            question: "Балықты тап",
+            target: "Балық",
+            correctChoiceId: "fish",
+            choices: [
+              { id: "bird", label: "Құс", visual: "🐦" },
+              { id: "fish", label: "Балық", visual: "🐟" },
+              { id: "turtle", label: "Тасбақа", visual: "🐢" }
+            ]
+          },
+          {
+            id: "animal-bird",
+            question: "Құсты тап",
+            target: "Құс",
+            correctChoiceId: "bird",
+            choices: [
+              { id: "bird", label: "Құс", visual: "🐦" },
+              { id: "rabbit", label: "Қоян", visual: "🐰" },
+              { id: "dog", label: "Ит", visual: "🐶" }
+            ]
+          },
+          {
+            id: "animal-rabbit",
+            question: "Қоянды тап",
+            target: "Қоян",
+            correctChoiceId: "rabbit",
+            choices: [
+              { id: "bear", label: "Аю", visual: "🐻" },
+              { id: "rabbit", label: "Қоян", visual: "🐰" },
+              { id: "lion", label: "Арыстан", visual: "🦁" }
+            ]
+          },
+          {
+            id: "animal-bear",
+            question: "Аюды тап",
+            target: "Аю",
+            correctChoiceId: "bear",
+            choices: [
+              { id: "bear", label: "Аю", visual: "🐻" },
+              { id: "elephant", label: "Піл", visual: "🐘" },
+              { id: "cow", label: "Сиыр", visual: "🐮" }
+            ]
+          },
+          {
+            id: "animal-lion",
+            question: "Арыстанды тап",
+            target: "Арыстан",
+            correctChoiceId: "lion",
+            choices: [
+              { id: "cat", label: "Мысық", visual: "🐱" },
+              { id: "lion", label: "Арыстан", visual: "🦁" },
+              { id: "bear", label: "Аю", visual: "🐻" }
+            ]
+          },
+          {
+            id: "animal-elephant",
+            question: "Пілді тап",
+            target: "Піл",
+            correctChoiceId: "elephant",
+            choices: [
+              { id: "elephant", label: "Піл", visual: "🐘" },
+              { id: "horse", label: "Жылқы", visual: "🐴" },
+              { id: "turtle", label: "Тасбақа", visual: "🐢" }
+            ]
+          },
+          {
+            id: "animal-turtle",
+            question: "Тасбақаны тап",
+            target: "Тасбақа",
+            correctChoiceId: "turtle",
+            choices: [
+              { id: "fish", label: "Балық", visual: "🐟" },
+              { id: "turtle", label: "Тасбақа", visual: "🐢" },
+              { id: "sheep", label: "Қой", visual: "🐑" }
             ]
           }
         ]
