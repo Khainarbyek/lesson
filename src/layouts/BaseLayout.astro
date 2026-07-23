@@ -74,5 +74,10 @@ const buildVersion = getBuildVersion();
   <body>
     <slot />
     <footer class="build-version" aria-label="Build version">Build {buildVersion}</footer>
+    <script>
+      import { initializeFirebaseAnalytics } from "../lib/firebaseAnalytics";
+
+      initializeFirebaseAnalytics();
+    </script>
   </body>
 </html>

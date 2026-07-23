@@ -1,14 +1,15 @@
 # Uyren MVP
 
-Uyren is a free children learning website MVP for English, Russian, and Kazakh learners. It starts with a broad lesson catalog and two playable activities for young children: Alphabet and Animals.
+Uyren is a free children learning website MVP for English, Russian, and Kazakh learners. It starts with a broad lesson catalog and playable activities for young children across Alphabet, Animals, and Math.
 
 ## Features
 
 - Trilingual routes: `/en/`, `/ru/`, and `/kk/`.
 - Age guidance for `3-5`, `6-8`, and `9+`.
 - Lesson catalog for Alphabet, Animals, Math, Chess, Typing, and Chemistry.
-- Playable Alphabet and Animals activities.
+- Playable Alphabet, Animals, number, and arithmetic activities.
 - Browser-only progress with `localStorage`.
+- Firebase Analytics support for production visit tracking.
 - Static Astro build for simple free hosting.
 - GitHub Actions CI.
 - Netlify deploy configuration.
@@ -48,6 +49,27 @@ npm run check
 npm test
 npm run build
 ```
+
+## Firebase Analytics
+
+Firebase Analytics is optional. The app initializes it only when all required public Firebase web config values are present.
+
+1. Create or open a Firebase project.
+2. Add a Web app in Firebase project settings.
+3. Enable Analytics for the project and copy the Firebase config values.
+4. Set these environment variables in production:
+
+```bash
+PUBLIC_FIREBASE_API_KEY=
+PUBLIC_FIREBASE_AUTH_DOMAIN=
+PUBLIC_FIREBASE_PROJECT_ID=
+PUBLIC_FIREBASE_STORAGE_BUCKET=
+PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+PUBLIC_FIREBASE_APP_ID=
+PUBLIC_FIREBASE_MEASUREMENT_ID=
+```
+
+For local testing, copy `.env.example` to `.env` and fill the same values. Visits appear in Firebase Analytics after the site is deployed and receiving traffic.
 
 ## Project Structure
 
